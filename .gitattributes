@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.cer -text
+*.png -text
+*.jpeg -text
+*.mobileconfig -text
+*.cmd -text
+*.sh -text

@@ -1,0 +1,4 @@
+Contact: mailto:wyrtensi@gmail.com
+Canonical: https://rusinternet.com/.well-known/security.txt
+Preferred-Languages: ru, en
+Expires: 2027-08-27T00:00:00Z

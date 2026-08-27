@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getInstallAction, type Platform } from '../../lib/platform';
+import { INSTALLER_HASHES } from '../../lib/release';
+
+export function getStaticPaths() {
+  return ['windows','macos','android','ios','linux'].map((platform) => ({ params:{ platform }, props:{ platform } }));
+}
+
+interface Props { platform: Platform }
+const { platform } = Astro.props;
+const names: Record<Platform,string> = { windows:'Windows', macos:'macOS', android:'Android', ios:'iPhone и iPad', linux:'Linux' };
+const action = getInstallAction(platform, 'ru', INSTALLER_HASHES);
+const certs: Array<[string, string, 'root' | 'intermediate']> = [
+  ['Корневой RSA','russian_trusted_root_ca.cer','root'],
+  ['Корневой ГОСТ 2025','russian_trusted_root_ca_gost_2025.cer','root'],
+  ['Промежуточный RSA 2022','russian_trusted_sub_ca.cer','intermediate'],
+  ['Промежуточный RSA 2024','russian_trusted_sub_ca_2024.cer','intermediate'],
+  ['Промежуточный ГОСТ 2025','russian_trusted_sub_ca_gost_2025.cer','intermediate']
+];
+---
+<BaseLayout title={`Российские сертификаты на ${names[platform]} — установка`} description={`Как установить российские доверенные сертификаты Минцифры на ${names[platform]} и убрать ошибку «не защищено» на Госуслугах, в банках и на маркетплейсах. Пошагово, с проверкой файлов.`} canonical={`https://rusinternet.com/install/${platform}/`}>
+  <article class="guide">
+    <a class="back" href="/">← На главную</a>
+    <span class="badge">ИНСТРУКЦИЯ</span>
+    <h1>Установка на {names[platform]}</h1>
+    {platform === 'android' ? (
+      <>
+        <div class="notice"><strong>Почему Android просит подтверждение</strong><p>Начиная с Android 11 ни сайт, ни приложение не могут добавить центр сертификации незаметно — это встроенная защита. Установка занимает минуту и выполняется вручную в настройках. Обойти подтверждение безопасно нельзя, поэтому автоматического скрипта без root не существует.</p></div>
+        <ol>
+          <li>Скачайте сертификаты ниже. Достаточно двух <b>корневых</b> — они закрывают ошибку доверия в браузере. Промежуточные можно добавить при желании.</li>
+          <li>Откройте <b>Настройки → Безопасность → Шифрование и учётные данные → Установить сертификат → Сертификат CA</b> и выберите скачанный файл. На части прошивок путь: Настройки → Безопасность и конфиденциальность → Другие параметры безопасности.</li>
+          <li>Подтвердите системное предупреждение для каждого файла и перезапустите браузер.</li>
+        </ol>
+        <div class="cert-list">{certs.map(([label,file,role]) => <a href={`/downloads/certificates/${file}`} download>{role === 'root' && <span class="tag">нужен</span>}<span class="cert-name">{label}</span><span class="dl">↓</span></a>)}</div>
+        <div class="hint"><strong>Появится уведомление «Сеть может отслеживаться»</strong><p>Это стандартное сообщение Android для любого добавленного вами сертификата, а не ошибка. Проверка идёт по официальным сертификатам Госуслуг. Chrome и Яндекс.Браузер используют добавленный центр сразу; некоторые приложения — нет, это ограничение самой системы.</p></div>
+      </>
+    ) : platform === 'ios' ? (
+      <>
+        <ol><li>Нажмите кнопку и разрешите загрузку профиля.</li><li>Откройте Настройки → Основные → VPN и управление устройством → Russian Trusted CA → Установить.</li><li>Затем: Настройки → Основные → Об этом устройстве → Доверие сертификатам и включите полное доверие для корневых сертификатов.</li></ol>
+        <a class="primary" href={action.kind !== 'command' ? action.href : '#'}>Установить профиль</a>
+      </>
+    ) : action.kind === 'command' ? (
+      <>
+        <div class="notice"><strong>Команда проверяет установщик</strong><p>Сначала сверяется SHA-256 самого скрипта, затем скрипт проверяет все пять сертификатов перед изменением системы.</p></div>
+        <ol><li>Откройте приложение «Терминал».</li><li>Скопируйте команду ниже, вставьте её и нажмите Enter.</li><li>Введите пароль администратора, если система попросит, затем перезапустите браузер.</li></ol>
+        <div class="command"><code id="guide-command">{action.command}</code><button id="guide-copy">Копировать</button></div>
+      </>
+    ) : (
+      <>
+        <ol><li>Скачайте прозрачный CMD-установщик.</li><li>Откройте файл и подтвердите запрос контроля учётных записей Windows.</li><li>Дождитесь сообщения Done и перезапустите браузер.</li></ol>
+        <a class="primary" href={action.href} download>Установить для Windows</a>
+      </>
+    )}
+    <p class="footnote">Сертификаты сверены с официальной публикацией. Версия набора: 27 августа 2026 года.</p>
+  </article>
+  <script>
+    document.querySelector('#guide-copy')?.addEventListener('click', async (event) => {
+      await navigator.clipboard.writeText(document.querySelector('#guide-command')?.textContent ?? '');
+      (event.currentTarget as HTMLButtonElement).textContent = 'Скопировано';
+    });
+  </script>
+</BaseLayout>
+<style>
+  .guide{max-width:720px;margin:44px auto 0;padding:0 22px}
+  .back{color:var(--muted);font-size:13px;text-decoration:none}
+  .badge{display:block;color:var(--blue);font-size:11px;font-weight:800;letter-spacing:.14em;margin-top:40px}
+  h1{font-size:clamp(32px,5.2vw,50px);letter-spacing:-.04em;line-height:1.06;margin:12px 0 26px}
+  .notice{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:var(--radius);padding:16px 18px;margin-bottom:24px}
+  .notice p{color:var(--muted);line-height:1.55;font-size:14px;margin:7px 0 0}
+  ol{padding-left:22px;display:grid;gap:14px;line-height:1.6;color:var(--muted)}
+  ol b{color:var(--text)}
+  li::marker{color:var(--blue);font-weight:800}
+  .primary{display:flex;justify-content:center;align-items:center;background:var(--blue);color:white;text-decoration:none;font-weight:750;border-radius:var(--radius-sm);height:52px;margin-top:24px;transition:background .18s}
+  .primary:hover{background:var(--blue2)}
+  .command{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;gap:10px;align-items:stretch;margin-top:6px}
+  .command code{background:var(--soft);padding:12px;border-radius:var(--radius-xs);word-break:break-all;font-size:11px;line-height:1.5;flex:1}
+  .command button{border:0;border-radius:var(--radius-xs);background:var(--blue);color:white;padding:0 14px;font-weight:700;cursor:pointer}
+  .cert-list{display:grid;gap:8px;margin-top:22px}
+  .cert-list a{background:var(--surface);border:1px solid var(--line);padding:13px 16px;border-radius:var(--radius-sm);text-decoration:none;display:flex;align-items:center;gap:10px;font-size:14px;transition:border-color .15s}
+  .cert-list a:hover{border-color:color-mix(in srgb,var(--blue) 38%,var(--line))}
+  .cert-name{flex:1}
+  .cert-list .tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--surface));border-radius:6px;padding:3px 7px}
+  .cert-list .dl{color:var(--blue);font-weight:800}
+  .hint{margin-top:22px;background:var(--soft);border-radius:var(--radius);padding:15px 18px}
+  .hint strong{font-size:14px}
+  .hint p{color:var(--muted);font-size:13px;line-height:1.55;margin:6px 0 0}
+  .footnote{color:var(--muted);font-size:12px;margin-top:26px}
+  @media(max-width:580px){.guide{margin-top:30px}.badge{margin-top:30px}.command{flex-direction:column}.command button{height:43px}}
+</style>

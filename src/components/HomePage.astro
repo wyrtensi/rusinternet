@@ -1,0 +1,329 @@
+---
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { INSTALLER_HASHES } from '../lib/release';
+
+interface Props { locale: 'ru' | 'en' }
+const { locale } = Astro.props;
+const ru = locale === 'ru';
+const title = ru
+  ? 'Российские сертификаты: исправить ошибку безопасности сайта'
+  : 'Russian trusted certificates: fix the “not secure” site error';
+const description = ru
+  ? 'Браузер пишет «Ваше подключение не защищено» на Госуслугах, в банке или на маркетплейсе? Установите российские доверенные сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux. Бесплатно, с проверкой файлов.'
+  : 'Browser shows “Your connection is not secure” on Russian government, bank or marketplace sites? Install the Russian trusted (Ministry of Digital Development) certificates on Windows, Android, iPhone, macOS and Linux. Free, with file verification.';
+const platforms = [
+  ['windows','logos:microsoft-windows-icon','Windows'],
+  ['macos','logos:apple','macOS'],
+  ['android','logos:android-icon','Android'],
+  ['ios','logos:apple','iPhone / iPad'],
+  ['linux','logos:linux-tux','Linux']
+] as const;
+const donateUrl = 'https://finance.ozon.ru/apps/sbp/ozonbankpay/01a042c3-8900-76b6-92ea-9db2523d91d2';
+const partners = [
+  {
+    img: '/assets/wyrtensi.jpeg',
+    label: ru ? 'ПАРТНЁР' : 'PARTNER',
+    title: ru ? 'Музыка артиста wyrtensi' : 'Music by wyrtensi',
+    copy: ru ? 'Слушайте на всех площадках' : 'Stream on every platform',
+    cta: 'band.link/wyrtensi',
+    href: 'https://band.link/wyrtensi',
+    rel: 'sponsored noopener noreferrer'
+  }
+];
+const services = ru
+  ? ['Госуслуги и государственные порталы', 'Онлайн-банки: Сбербанк, ВТБ, Альфа-Банк', 'Маркетплейсы: Ozon, Wildberries', 'Другие сайты на сертификатах Минцифры']
+  : ['Gosuslugi and government portals', 'Online banks: Sberbank, VTB, Alfa-Bank', 'Marketplaces: Ozon, Wildberries', 'Other sites using Ministry of Digital certificates'];
+const errorSamples = ru
+  ? ['«Ваше подключение не защищено»', '«Сертификат безопасности не является доверенным»', '«Этот сайт не может обеспечить безопасное подключение»', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER']
+  : ['“Your connection is not secure”', '“The security certificate is not trusted”', '“This site can’t provide a secure connection”', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER'];
+const faq: Array<[string, string]> = ru
+  ? [
+      ['Это безопасно?', 'Установщики принимают только пять заранее известных файлов и проверяют SHA-256 до системных изменений. Исходные файлы сверены с официальной публикацией Госуслуг.'],
+      ['Почему Госуслуги пишут, что сайт небезопасен?', 'Часть зарубежных центров сертификации перестала доверять сертификатам российских сайтов. Браузер видит «неизвестный» сертификат и показывает ошибку, хотя сам сайт работает. После установки российских корневых сертификатов ошибка пропадает.'],
+      ['Поможет при ошибке сертификата в онлайн-банке?', 'Да, если банк использует сертификат НУЦ Минцифры (Сбербанк, ВТБ, Альфа-Банк и другие). После установки и перезапуска браузера или приложения соединение снова считается доверенным.'],
+      ['Не открывается Ozon или Wildberries из-за сертификата?', 'Это та же ошибка доверия. Установите российские сертификаты и перезапустите браузер — маркетплейсы откроются как обычно.'],
+      ['Почему Windows просит права администратора?', 'Сертификаты добавляются в системные хранилища Root и CA, поэтому Windows должна подтвердить действие.'],
+      ['Можно удалить сертификаты?', 'Да, через системное управление сертификатами. Автоматического удаления нет: так меньше риск удалить чужой сертификат с похожим именем.'],
+      ['Почему Android и iPhone показывают дополнительные экраны?', 'Мобильные системы не разрешают сайту незаметно добавить центр сертификации. Это штатная защита: установку нужно подтвердить в настройках.']
+    ]
+  : [
+      ['Is this safe?', 'Installers accept only five known files and verify SHA-256 before changing system settings. Source files were checked against the official Gosuslugi publication.'],
+      ['Why do Russian sites say the connection is not secure?', 'Some foreign certificate authorities stopped trusting Russian websites’ certificates. The browser sees an “unknown” certificate and shows an error even though the site itself works. Installing the Russian root certificates removes the error.'],
+      ['Does it help with a bank certificate error?', 'Yes, if the bank uses a Ministry of Digital Development certificate. After installing and restarting the browser or app, the connection is trusted again.'],
+      ['Ozon or Wildberries will not open because of a certificate?', 'That is the same trust error. Install the Russian certificates and restart the browser — the marketplaces open normally.'],
+      ['Why does Windows request administrator rights?', 'Certificates are added to the system Root and CA stores, so Windows must confirm the action.'],
+      ['Can I remove the certificates?', 'Yes, through your system certificate manager. There is no automatic remover to avoid deleting an unrelated certificate with a similar name.'],
+      ['Why do Android and iPhone show extra screens?', 'Mobile operating systems do not allow a website to silently add a certificate authority. You must confirm it in Settings.']
+    ];
+---
+<BaseLayout {title} {description} {locale} canonical={ru ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'}>
+  <section class="hero">
+    <div class="eyebrow"><span></span>{ru ? 'Госуслуги · банки · маркетплейсы' : 'Gov · banks · marketplaces'}</div>
+    <h1>{ru ? 'Сайт пишет «не защищено»?' : 'Site says “not secure”?'}<br/><span>{ru ? 'Исправим за пару минут' : 'Fixed in a couple of minutes'}</span></h1>
+    <p class="hero-copy">{ru ? 'Если браузер показывает ошибку сертификата на Госуслугах, в банке или на маркетплейсе — установите российские доверенные сертификаты. Быстро, понятно и безопасно.' : 'If your browser shows a certificate error on Russian government, banking or marketplace sites, install the Russian trusted certificates. Fast, clear and safe.'}</p>
+
+    <div class="installer-card" data-locale={locale} data-macos-hash={INSTALLER_HASHES.macos} data-linux-hash={INSTALLER_HASHES.linux}>
+      <div class="detected"><span class="status-dot"></span><span id="detected-label">{ru ? 'Определено: Windows' : 'Detected: Windows'}</span></div>
+      <div class="selected-platform">
+        <span class="selected-icon" id="selected-icon"><Icon name="logos:microsoft-windows-icon" /></span>
+        <div><strong id="selected-title">Windows</strong><p id="selected-copy">{ru ? 'Установщик всё сделает сам' : 'The installer will do the work'}</p></div>
+      </div>
+      <a class="primary-action" id="primary-action" href="/downloads/install-windows.cmd" download>
+        <span id="action-label">{ru ? 'Установить для Windows' : 'Install for Windows'}</span><span aria-hidden="true">→</span>
+      </a>
+      <div class="command-panel" id="command-panel" hidden>
+        <p>{ru ? 'Откройте Терминал, вставьте команду и нажмите Enter:' : 'Open Terminal, paste the command and press Enter:'}</p>
+        <div class="command-row"><code id="install-command"></code><button id="copy-command" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
+      </div>
+      <p class="microcopy"><span>✓</span> {ru ? 'Бесплатно · Без регистрации · Проверка SHA-256' : 'Free · No sign-up · SHA-256 verified'}</p>
+    </div>
+
+    <p class="choose-label">{ru ? 'Или выберите свою систему' : 'Or choose your system'}</p>
+    <div class="platforms" role="group" aria-label={ru ? 'Выбор операционной системы' : 'Operating system selection'}>
+      {platforms.map(([id,icon,label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}>{id === 'windows' ? <span class="windows-glyph">⊞</span> : <Icon name={icon}/>}<span>{label}</span></button>)}
+    </div>
+  </section>
+
+  <section class="trust-strip" id="safety">
+    <div><span>✓</span><p><strong>{ru ? 'Официальные сертификаты' : 'Official certificates'}</strong><small>{ru ? 'Сверены с Госуслугами' : 'Checked against Gosuslugi'}</small></p></div>
+    <div><span>⌁</span><p><strong>{ru ? 'Прозрачная установка' : 'Transparent installation'}</strong><small>{ru ? 'Скрипты доступны для проверки' : 'Scripts are open for inspection'}</small></p></div>
+    <div><span>♢</span><p><strong>{ru ? 'Только системные изменения' : 'Only trust-store changes'}</strong><small>{ru ? 'Без программ и рекламы' : 'No apps or advertising'}</small></p></div>
+  </section>
+
+  <section class="content-section" id="how">
+    <div class="section-heading"><span>{ru ? 'КАК ЭТО РАБОТАЕТ' : 'HOW IT WORKS'}</span><h2>{ru ? 'Три понятных шага' : 'Three clear steps'}</h2><p>{ru ? 'Сайт подбирает безопасный способ для вашей системы. Сертификаты не нужно скачивать по одному.' : 'The site chooses a safe method for your system. You do not download certificates one by one.'}</p></div>
+    <div class="steps">
+      <article><b>1</b><h3>{ru ? 'Выберите систему' : 'Choose your system'}</h3><p>{ru ? 'Мы определяем её автоматически, но выбор можно изменить.' : 'We detect it automatically, and you can always change it.'}</p></article>
+      <article><b>2</b><h3>{ru ? 'Запустите установку' : 'Start installation'}</h3><p>{ru ? 'Файлы загружаются с сервера и сверяются по контрольным суммам.' : 'Files are fetched from the server and checked against known hashes.'}</p></article>
+      <article><b>3</b><h3>{ru ? 'Перезапустите браузер' : 'Restart your browser'}</h3><p>{ru ? 'После установки сайты с российскими сертификатами снова откроются.' : 'Websites using Russian certificates should then open normally.'}</p></article>
+    </div>
+  </section>
+
+  <section class="content-section two-column">
+    <div>
+      <div class="section-heading left"><span>{ru ? 'ПОЧЕМУ ЭТО НУЖНО' : 'WHY THIS IS NEEDED'}</span><h2>{ru ? 'Что исправляют сертификаты' : 'What certificates fix'}</h2></div>
+      <p class="lead">{ru ? 'Некоторые зарубежные центры сертификации прекращают обслуживание российских сайтов. Из-за этого браузер может показать ошибку безопасности, хотя сам сайт работает.' : 'Some foreign certificate authorities may stop serving Russian websites. A browser can then show a certificate error even while the website itself is online.'}</p>
+    </div>
+    <div class="info-card"><strong>{ru ? 'Важно' : 'Important'}</strong><p>{ru ? 'Сертификаты помогают только при ошибках доверия. Они не обходят блокировки, не меняют DNS и не добавляют поддержку ГОСТ-шифрования обычному браузеру.' : 'Certificates only resolve trust errors. They do not bypass blocking, change DNS or add GOST cipher support to a standard browser.'}</p></div>
+  </section>
+
+  <section class="content-section" id="cases">
+    <div class="section-heading"><span>{ru ? 'КОМУ ПОМОГАЕТ' : 'WHO IT HELPS'}</span><h2>{ru ? 'Если не открываются нужные сайты' : 'When the sites you need won’t open'}</h2><p>{ru ? 'Обычно это ошибка доверия сертификату, а не блокировка. Узнаёте свою ситуацию?' : 'Usually this is a certificate-trust error, not blocking. Recognise your case?'}</p></div>
+    <div class="cases">
+      <div class="case-card"><h3>{ru ? 'Каким сайтам помогает' : 'Which sites it helps'}</h3><ul>{services.map((s) => <li>{s}</li>)}</ul></div>
+      <div class="case-card"><h3>{ru ? 'Как выглядит проблема' : 'What the error looks like'}</h3><ul class="errs">{errorSamples.map((e) => <li>{e}</li>)}</ul></div>
+    </div>
+  </section>
+
+  <section class="content-section" id="faq">
+    <div class="section-heading"><span>FAQ</span><h2>{ru ? 'Частые вопросы' : 'Common questions'}</h2></div>
+    <div class="faq-list">
+      {faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+    </div>
+  </section>
+
+  <section class="content-section support" id="support">
+    <div class="section-heading"><span>{ru ? 'ПОДДЕРЖКА' : 'SUPPORT'}</span><h2>{ru ? 'Помогите проекту жить' : 'Keep the project alive'}</h2><p>{ru ? 'Сайт бесплатный и без рекламы. Его держат на плаву пожертвования и партнёры.' : 'The site is free and ad-free — donations and partners keep it running.'}</p></div>
+    <div class="support-band">
+      <article class="donate-card">
+        <div class="donate-head"><span class="donate-emoji" aria-hidden="true">☕</span><div><strong>{ru ? 'Поддержать рублём' : 'Donate'}</strong><small>{ru ? 'Любая сумма — по желанию' : 'Any amount, entirely optional'}</small></div></div>
+        <img class="donate-qr" src="/assets/donate-qr.png" width="148" height="148" alt={ru ? 'QR-код СБП для перевода в Ozon Банк' : 'SBP QR code for an Ozon Bank transfer'} />
+        <a class="donate-btn" href={donateUrl} target="_blank" rel="noopener noreferrer">{ru ? 'Перевести через Ozon Банк' : 'Pay via Ozon Bank'} <span aria-hidden="true">→</span></a>
+        <p class="donate-note">{ru ? 'Отсканируйте QR в приложении банка или откройте ссылку.' : 'Scan the QR in your bank app, or open the link.'}</p>
+      </article>
+      <div class="partner-rail">
+        <span class="rail-label">{ru ? 'ПАРТНЁРЫ' : 'PARTNERS'}</span>
+        {partners.map((p) => (
+          <a class="banner" href={p.href} target="_blank" rel={p.rel}>
+            <img src={p.img} width="72" height="72" alt="" />
+            <div class="banner-body"><small>{p.label}</small><strong>{p.title}</strong><span class="banner-copy">{p.copy}</span></div>
+            <span class="banner-cta">{p.cta} <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+        <details class="banner banner-become">
+          <summary><span class="become-plus" aria-hidden="true">+</span><span><strong>{ru ? 'Разместить свой баннер' : 'Place your banner'}</strong><small>{ru ? 'Свободное место для партнёра' : 'A free partner slot'}</small></span></summary>
+          <div class="become-body">
+            <p>{ru ? 'Напишите — обсудим размещение и условия.' : 'Get in touch to discuss placement.'}</p>
+            <div class="copy-row"><code id="partner-email">wyrtensi@gmail.com</code><button id="copy-email" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'WebSite', name:'RusInternet', url:'https://rusinternet.com/', description })} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type':'Question', name:q, acceptedAnswer:{ '@type':'Answer', text:a } })) })} />
+
+  <script>
+    import { detectPlatform, getInstallAction, type Platform } from '../lib/platform';
+    const card = document.querySelector<HTMLElement>('.installer-card');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-platform]');
+    const action = document.querySelector<HTMLAnchorElement>('#primary-action');
+    const label = document.querySelector<HTMLElement>('#action-label');
+    const detectedLabel = document.querySelector<HTMLElement>('#detected-label');
+    const title = document.querySelector<HTMLElement>('#selected-title');
+    const copy = document.querySelector<HTMLElement>('#selected-copy');
+    const commandPanel = document.querySelector<HTMLElement>('#command-panel');
+    const commandCode = document.querySelector<HTMLElement>('#install-command');
+    const selectedIcon = document.querySelector<HTMLElement>('#selected-icon');
+    const locale = (card?.dataset.locale ?? 'ru') as 'ru' | 'en';
+    const hashes = { macos: card?.dataset.macosHash ?? '', linux: card?.dataset.linuxHash ?? '' };
+    const names: Record<Platform,string> = { windows:'Windows', macos:'macOS', android:'Android', ios:'iPhone / iPad', linux:'Linux' };
+    const copies: Record<Platform,string> = locale === 'ru'
+      ? { windows:'Установщик всё сделает сам', macos:'Одна проверяемая команда', android:'Понадобится подтверждение в настройках', ios:'Понадобится включить полное доверие', linux:'Одна проверяемая команда' }
+      : { windows:'The installer will do the work', macos:'One verified command', android:'Confirmation in Settings is required', ios:'Full trust must be enabled', linux:'One verified command' };
+    function selectPlatform(platform: Platform, auto = false) {
+      const config = getInstallAction(platform, locale, hashes);
+      buttons.forEach((button) => {
+        const active = button.dataset.platform === platform;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      const sourceIcon = document.querySelector<HTMLButtonElement>(`[data-platform="${platform}"]`)?.querySelector('svg, .windows-glyph');
+      if (selectedIcon && sourceIcon) selectedIcon.replaceChildren(sourceIcon.cloneNode(true));
+      if (title) title.textContent = names[platform];
+      if (copy) copy.textContent = copies[platform];
+      if (detectedLabel) detectedLabel.textContent = `${auto ? (locale === 'ru' ? 'Определено' : 'Detected') : (locale === 'ru' ? 'Выбрано' : 'Selected')}: ${names[platform]}`;
+      if (label) label.textContent = config.label + (config.kind === 'download' && platform === 'windows' ? ` ${locale === 'ru' ? 'для' : 'for'} Windows` : '');
+      if (action) {
+        action.href = config.kind === 'command' ? '#' : config.href;
+        action.toggleAttribute('download', config.kind === 'download');
+        action.dataset.kind = config.kind;
+      }
+      commandPanel?.setAttribute('hidden','');
+      if (config.kind === 'command' && commandCode) commandCode.textContent = config.command;
+    }
+
+    const detected = detectPlatform(navigator.userAgent) ?? 'windows';
+    selectPlatform(detected, true);
+    buttons.forEach((button) => button.addEventListener('click', () => selectPlatform(button.dataset.platform as Platform)));
+    action?.addEventListener('click', (event) => {
+      if (action.dataset.kind === 'command') { event.preventDefault(); commandPanel?.removeAttribute('hidden'); commandPanel?.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+    });
+    document.querySelector('#copy-command')?.addEventListener('click', async (event) => {
+      await navigator.clipboard.writeText(commandCode?.textContent ?? '');
+      (event.currentTarget as HTMLButtonElement).textContent = locale === 'ru' ? 'Скопировано' : 'Copied';
+    });
+    document.querySelector('#copy-email')?.addEventListener('click', async (event) => {
+      await navigator.clipboard.writeText('wyrtensi@gmail.com');
+      (event.currentTarget as HTMLButtonElement).textContent = locale === 'ru' ? 'Скопировано' : 'Copied';
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  /* Hero */
+  .hero{max-width:900px;margin:40px auto 0;padding:0 24px;text-align:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-weight:750;font-size:13px;letter-spacing:.02em}
+  .eyebrow span{width:8px;height:8px;background:var(--green);border-radius:99px;box-shadow:0 0 0 5px color-mix(in srgb,var(--green) 14%,transparent)}
+  h1{font-size:clamp(38px,5.3vw,60px);line-height:1.04;letter-spacing:-.045em;margin:16px 0 14px}
+  h1 span{color:var(--blue)}
+  .hero-copy{font-size:17px;color:var(--muted);margin:0 auto 24px;max-width:600px;line-height:1.55}
+  /* Installer card */
+  .installer-card{width:min(100%,560px);margin:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:left}
+  .detected{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px;margin:0 4px 14px}
+  .status-dot{width:7px;height:7px;background:var(--green);border-radius:99px}
+  .selected-platform{display:flex;align-items:center;gap:15px;padding:0 3px 16px}
+  .selected-icon{width:46px;height:46px;display:grid;place-items:center;background:#fff;border-radius:var(--radius-sm);padding:9px}
+  .selected-icon svg{width:100%;height:100%}
+  .selected-icon .windows-glyph,.windows-glyph{color:#087cd7;font-size:30px;font-weight:900;line-height:1}
+  .selected-platform strong{font-size:18px}
+  .selected-platform p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .primary-action{height:54px;border-radius:var(--radius-sm);background:var(--blue);color:white;text-decoration:none;font-weight:760;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 6px 16px color-mix(in srgb,var(--blue) 22%,transparent);transition:transform .18s,background .18s,box-shadow .18s}
+  .primary-action:hover{transform:translateY(-1px);background:var(--blue2);box-shadow:0 9px 22px color-mix(in srgb,var(--blue) 28%,transparent)}
+  .microcopy{text-align:center;color:var(--muted);font-size:11px;margin:12px 0 0}
+  .microcopy span{color:var(--green);font-weight:900}
+  .command-panel{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+  .command-panel p{font-size:13px;color:var(--muted)}
+  .command-row{display:flex;gap:8px;background:var(--soft);border-radius:var(--radius-sm);padding:8px}
+  .command-row code{font-size:11px;line-height:1.5;word-break:break-all;max-height:92px;overflow:auto;flex:1}
+  .command-row button,.copy-row button{border:0;border-radius:var(--radius-xs);background:var(--text);color:var(--bg);font-weight:700;padding:0 12px;cursor:pointer}
+  /* Platform picker */
+  .choose-label{margin:22px 0 12px;color:var(--muted);font-size:12px}
+  .platforms{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+  .platforms button{min-width:90px;height:72px;background:transparent;border:1px solid transparent;border-radius:var(--radius-sm);color:var(--muted);display:grid;place-items:center;gap:5px;padding:8px;cursor:pointer;font-size:11px;transition:background .15s,border-color .15s,color .15s}
+  .platforms button svg,.platforms .windows-glyph{width:32px;height:32px;background:#fff;border-radius:var(--radius-xs);padding:6px;filter:grayscale(.15)}
+  .platforms button:hover,.platforms button.active{background:var(--surface);border-color:var(--line);color:var(--text);box-shadow:var(--shadow-sm)}
+  /* Trust strip */
+  .trust-strip{max-width:1050px;margin:44px auto 0;padding:22px 30px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .trust-strip>div{display:flex;align-items:center;gap:13px}
+  .trust-strip>div>span{width:38px;height:38px;border-radius:var(--radius-sm);background:color-mix(in srgb,var(--green) 12%,var(--surface));color:var(--green);display:grid;place-items:center;font-weight:900}
+  .trust-strip p{margin:0}
+  .trust-strip strong,.trust-strip small{display:block}
+  .trust-strip strong{font-size:13px}
+  .trust-strip small{font-size:11px;color:var(--muted);margin-top:4px}
+  /* Sections */
+  .content-section{max-width:1050px;margin:64px auto 0;padding:0 24px}
+  .section-heading{text-align:center;max-width:640px;margin:0 auto 28px}
+  .section-heading.left{text-align:left;margin:0 0 18px}
+  .section-heading>span{font-size:11px;letter-spacing:.15em;color:var(--blue);font-weight:800}
+  .section-heading h2{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.035em;margin:10px 0}
+  .section-heading p,.lead{color:var(--muted);line-height:1.65}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .steps article,.info-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .steps b{width:33px;height:33px;background:var(--soft);color:var(--blue);border-radius:var(--radius-xs);display:grid;place-items:center;font-weight:800}
+  .steps h3{font-size:17px;margin:18px 0 8px}
+  .steps p,.info-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
+  .two-column{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+  .info-card{border-left:4px solid var(--blue)}
+  .info-card strong{display:block;margin-bottom:10px}
+  /* Cases */
+  .cases{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin:0 auto}
+  .case-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+  .case-card h3{font-size:16px;margin:0 0 14px}
+  .case-card ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .case-card li{position:relative;padding-left:24px;color:var(--muted);font-size:14px;line-height:1.4}
+  .case-card li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:900}
+  .case-card .errs li{padding-left:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--text)}
+  .case-card .errs li::before{content:'!';color:var(--blue);font-weight:900}
+  /* FAQ */
+  .faq-list{max-width:780px;margin:auto;border-top:1px solid var(--line)}
+  .faq-list details{border-bottom:1px solid var(--line);padding:16px 4px}
+  .faq-list summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
+  .faq-list summary::after{content:'+';color:var(--blue);font-size:20px;line-height:1}
+  .faq-list details[open] summary::after{content:'−'}
+  .faq-list p{color:var(--muted);line-height:1.6;font-size:14px;max-width:680px;margin:10px 0 0}
+  /* Support / donate / partners */
+  .support-band{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:.85fr 1.15fr;gap:16px;align-items:start}
+  .donate-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:center}
+  .donate-head{display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:16px}
+  .donate-emoji{width:42px;height:42px;flex:none;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--blue) 10%,var(--surface));border-radius:var(--radius-sm)}
+  .donate-head strong{display:block;font-size:15px}
+  .donate-head small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .donate-qr{width:148px;height:148px;border-radius:var(--radius-sm);display:block;margin:0 auto 14px;border:1px solid var(--line);background:#fff}
+  .donate-btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;text-decoration:none;font-weight:730;font-size:14px;transition:background .18s}
+  .donate-btn:hover{background:var(--blue2)}
+  .donate-note{color:var(--muted);font-size:12px;line-height:1.5;margin:12px 0 0}
+  .partner-rail{display:flex;flex-direction:column;gap:10px}
+  .rail-label{font-size:11px;letter-spacing:.14em;color:var(--muted);font-weight:800;padding:2px 2px 0}
+  .banner{display:flex;align-items:center;gap:15px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-decoration:none;color:inherit;transition:border-color .18s,box-shadow .18s,transform .18s}
+  a.banner:hover{border-color:color-mix(in srgb,var(--blue) 38%,var(--line));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+  .banner img{width:64px;height:64px;flex:none;object-fit:cover;border-radius:var(--radius-sm)}
+  .banner-body{flex:1;min-width:0}
+  .banner-body small{color:var(--blue);font-size:10px;font-weight:800;letter-spacing:.12em}
+  .banner-body strong{display:block;font-size:16px;margin:3px 0 2px;letter-spacing:-.01em}
+  .banner-copy{color:var(--muted);font-size:13px}
+  .banner-cta{flex:none;color:var(--blue);font-weight:730;font-size:13px;white-space:nowrap}
+  .banner-become{padding:0;flex:none;flex-direction:column;align-items:stretch;background:transparent;border-style:dashed}
+  .banner-become summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:15px;padding:14px 16px}
+  .banner-become summary::-webkit-details-marker{display:none}
+  .become-plus{width:42px;height:42px;flex:none;display:grid;place-items:center;font-size:24px;font-weight:400;color:var(--blue);background:color-mix(in srgb,var(--blue) 9%,var(--surface));border-radius:var(--radius-sm)}
+  .banner-become summary strong{display:block;font-size:15px}
+  .banner-become summary small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .become-body{padding:0 16px 16px 73px}
+  .become-body p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 10px}
+  .copy-row{display:flex;gap:8px}
+  .copy-row code{flex:1;background:var(--soft);border:1px solid var(--line);border-radius:var(--radius-xs);padding:9px 12px;color:var(--text);font-size:13px}
+  .copy-row button{padding:0 14px;height:38px}
+  @media(max-width:780px){
+    .hero{margin-top:30px;padding:0 16px}h1{font-size:40px}.hero-copy{font-size:16px}
+    .platforms{display:grid;grid-template-columns:repeat(3,1fr)}.platforms button{min-width:0;width:100%}
+    .trust-strip{margin:36px 16px 0;padding:18px;grid-template-columns:1fr;gap:14px}
+    .content-section{margin-top:52px;padding:0 17px}
+    .steps,.two-column,.support-band,.cases{grid-template-columns:1fr}.two-column{gap:16px}
+    .section-heading{text-align:left}
+    .banner-cta{display:none}.become-body{padding-left:16px}
+  }
+  @media(max-width:380px){h1{font-size:36px}.installer-card{padding:14px}.primary-action{font-size:14px}.platforms{grid-template-columns:repeat(2,1fr)}}
+</style>

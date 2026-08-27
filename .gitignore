@@ -1,0 +1,16 @@
+secret/
+node_modules/
+dist/
+.astro/
+.worktrees/
+.superpowers/
+coverage/
+.artifacts-*.png
+playwright-report/
+test-results/
+*.log
+.DS_Store
+Thumbs.db
+
+# scratch/automation helpers
+_*.mjs

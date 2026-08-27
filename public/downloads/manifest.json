@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "upstreamCheckedAt": "2026-08-27",
+  "officialPage": "https://www.gosuslugi.ru/crt",
+  "installers": {
+    "windows": "B07B83DE08337969CBB2A79852D41AA882A9D80BE0291D1E910399963D1BCF11",
+    "macos": "CEF179CF3482FD3F196E62DF8C89D378B484B6636A2BF69211F9017B43D89EB8",
+    "linux": "F547623A4A4466E48F1F2A7F1DFABA6D2BBD014A37DF2B2CED5A71E6010C5D15",
+    "iosProfile": "A0ACD84DC1DBBAAFAE26610B38D6ED51EAA56484A1476DE4F5CB8F8D2395BB21"
+  },
+  "certificates": [
+    {
+      "id": "root-rsa",
+      "filename": "russian_trusted_root_ca.cer",
+      "role": "root",
+      "sha256": "936A43FEA6E8E525BCC0F81ACD9C3D21B4FC4B9B68ACEA7906D698005AFC6504",
+      "sha1": "8FF915CCAB7BC16F8C5C8099D53E0E115B3AEC2F",
+      "subject": "CN=Russian Trusted Root CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "issuer": "CN=Russian Trusted Root CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "notBefore": "2022-03-02",
+      "notAfter": "2032-02-28",
+      "sourceUrl": "https://gu-st.ru/content/lending/android_russian_trusted_root_ca.zip"
+    },
+    {
+      "id": "root-gost-2025",
+      "filename": "russian_trusted_root_ca_gost_2025.cer",
+      "role": "root",
+      "sha256": "5B51DB721B7C34958ED7432AE917A91297DD37508B2CAE4F858FFBAC6BC525EF",
+      "sha1": "656F78A4649A650E54043043B1C5EEEC128704A9",
+      "subject": "CN=Минцифры России НУЦ корневой, O=Минцифры России, C=RU",
+      "issuer": "CN=Минцифры России НУЦ корневой, O=Минцифры России, C=RU",
+      "notBefore": "2025-05-28",
+      "notAfter": "2040-05-24",
+      "sourceUrl": "https://gu-st.ru/content/lending/android_russian_trusted_root_ca.zip"
+    },
+    {
+      "id": "sub-rsa-2022",
+      "filename": "russian_trusted_sub_ca.cer",
+      "role": "intermediate",
+      "sha256": "F0AE589F36774F29EF3648F7984B08D42FCCE6F1FFEEB6236D773DAEB2744EA6",
+      "sha1": "335D43F53451B781535FF3882DF713D3C14F8A01",
+      "subject": "CN=Russian Trusted Sub CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "issuer": "CN=Russian Trusted Root CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "notBefore": "2022-03-02",
+      "notAfter": "2027-03-06",
+      "sourceUrl": "https://gu-st.ru/content/lending/russian_trusted_sub_ca.zip"
+    },
+    {
+      "id": "sub-rsa-2024",
+      "filename": "russian_trusted_sub_ca_2024.cer",
+      "role": "intermediate",
+      "sha256": "6F9D829C8E6712444FCE3624658D8788672849C5D5B7B53FD9CF7E83EAC4193E",
+      "sha1": "6741AB02CF6598C09652DC34D2DC095904E32B52",
+      "subject": "CN=Russian Trusted Sub CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "issuer": "CN=Russian Trusted Root CA, O=The Ministry of Digital Development and Communications, C=RU",
+      "notBefore": "2024-07-15",
+      "notAfter": "2029-07-19",
+      "sourceUrl": "https://gu-st.ru/content/lending/russian_trusted_sub_ca.zip"
+    },
+    {
+      "id": "sub-gost-2025",
+      "filename": "russian_trusted_sub_ca_gost_2025.cer",
+      "role": "intermediate",
+      "sha256": "B809281BF07B865BCDD7F5746BF1EBB7CCEE093D5C63B016DD91EE3B22CDA8D1",
+      "sha1": "59064DECEBC5145CC1BE8465C292CBE2EF83B31D",
+      "subject": "CN=Минцифры России НУЦ подчиненный, O=Минцифры России, C=RU",
+      "issuer": "CN=Минцифры России НУЦ корневой, O=Минцифры России, C=RU",
+      "notBefore": "2025-05-28",
+      "notAfter": "2030-05-27",
+      "sourceUrl": "https://gu-st.ru/content/lending/russian_trusted_sub_ca.zip"
+    }
+  ]
+}
