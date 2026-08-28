@@ -11,12 +11,28 @@ interface Props { platform: Platform }
 const { platform } = Astro.props;
 const names: Record<Platform,string> = { windows:'Windows', macos:'macOS', android:'Android', ios:'iPhone и iPad', linux:'Linux' };
 const action = getInstallAction(platform, 'ru', INSTALLER_HASHES);
-const certs: Array<[string, string, 'root' | 'intermediate']> = [
-  ['Корневой RSA','russian_trusted_root_ca.cer','root'],
-  ['Корневой ГОСТ 2025','russian_trusted_root_ca_gost_2025.cer','root'],
-  ['Промежуточный RSA 2022','russian_trusted_sub_ca.cer','intermediate'],
-  ['Промежуточный RSA 2024','russian_trusted_sub_ca_2024.cer','intermediate'],
-  ['Промежуточный ГОСТ 2025','russian_trusted_sub_ca_gost_2025.cer','intermediate']
+const certGroups = [
+  {
+    title: 'Обязательно — для браузера',
+    note: 'Одного корневого сертификата достаточно, чтобы браузер снова открывал российские сайты.',
+    items: [['Russian Trusted Root CA — корневой', 'russian_trusted_root_ca.cer']]
+  },
+  {
+    title: 'Рекомендуется — для надёжности',
+    note: 'Добавьте, если сайт всё ещё не открывается: иногда сервер не передаёт промежуточный сертификат сам, и браузеру нужно взять его у вас.',
+    items: [
+      ['Russian Trusted Sub CA — промежуточный, 2022', 'russian_trusted_sub_ca.cer'],
+      ['Russian Trusted Sub CA — промежуточный, 2024', 'russian_trusted_sub_ca_2024.cer']
+    ]
+  },
+  {
+    title: 'Только для ГОСТ-программ',
+    note: 'Обычным браузерам не нужны — они не поддерживают ГОСТ. Ставьте, только если пользуетесь ГОСТ-софтом (например, КриптоПро).',
+    items: [
+      ['Минцифры России НУЦ корневой — ГОСТ 2025', 'russian_trusted_root_ca_gost_2025.cer'],
+      ['Минцифры России НУЦ подчинённый — ГОСТ 2025', 'russian_trusted_sub_ca_gost_2025.cer']
+    ]
+  }
 ];
 ---
 <BaseLayout title={`Российские сертификаты на ${names[platform]} — установка`} description={`Как установить российские доверенные сертификаты Минцифры на ${names[platform]} и убрать ошибку «не защищено» на Госуслугах, в банках и на маркетплейсах. Пошагово, с проверкой файлов.`} canonical={`https://rusinternet.com/install/${platform}/`}>
@@ -27,9 +43,10 @@ const certs: Array<[string, string, 'root' | 'intermediate']> = [
     {platform === 'android' ? (
       <>
         <div class="notice"><strong>Почему Android просит подтверждение</strong><p>Начиная с Android 11 ни сайт, ни приложение не могут добавить центр сертификации незаметно — это встроенная защита. Установка занимает минуту и выполняется вручную в настройках. Обойти подтверждение безопасно нельзя, поэтому автоматического скрипта без root не существует.</p></div>
+        <div class="chain-explainer"><strong>Зачем корневой и промежуточный сертификаты</strong><p>Сертификат сайта подписан промежуточным центром, а тот — корневым. Браузеру достаточно доверять <b>корневому</b>: промежуточный сайт обычно передаёт сам во время подключения. Но если сайт настроен неполно и не передаёт его, браузер не может достроить цепочку — тогда выручает заранее установленный <b>промежуточный</b>. Поэтому корневой обязателен, а промежуточные — подстраховка.</p></div>
         <ol>
-          <li>Скачайте сертификаты ниже. Достаточно двух <b>корневых</b> — они закрывают ошибку доверия в браузере. Промежуточные можно добавить при желании.</li>
-          <li>Откройте настройки и выберите <b>Установить сертификат → Сертификат CA</b>, затем скачанный файл. Точный путь зависит от производителя:</li>
+          <li>Скачайте нужный сертификат ниже. Для браузера обязателен один — <b>Russian Trusted Root CA</b>.</li>
+          <li>Откройте скачанный файл — часто телефон сразу предложит установить сертификат. Если нет, зайдите в настройки: <b>Установить сертификат → Сертификат CA</b> и выберите файл. Точный путь зависит от производителя:</li>
         </ol>
         <div class="vendor-paths">
           <div><span>Чистый Android, Pixel</span><small>Настройки → Безопасность и конфиденциальность → Дополнительно → Шифрование и учётные данные → Установить сертификат → Сертификат CA</small></div>
@@ -37,9 +54,16 @@ const certs: Array<[string, string, 'root' | 'intermediate']> = [
           <div><span>Xiaomi (HyperOS / MIUI)</span><small>Настройки → Пароли и безопасность → Конфиденциальность → Шифрование и учётные данные → Установить сертификат → Сертификат CA</small></div>
         </div>
         <ol start="3">
-          <li>Подтвердите системное предупреждение для каждого файла и перезапустите браузер.</li>
+          <li>Подтвердите системное предупреждение и перезапустите браузер. Если сайт не открылся — добавьте рекомендуемые промежуточные сертификаты тем же способом.</li>
         </ol>
-        <div class="cert-list">{certs.map(([label,file,role]) => <a href={`/downloads/certificates/${file}`} download>{role === 'root' && <span class="tag">нужен</span>}<span class="cert-name">{label}</span><span class="dl">↓</span></a>)}</div>
+        <div class="cert-groups">
+          {certGroups.map((g) => (
+            <div class="cert-group">
+              <div class="cert-group-head"><strong>{g.title}</strong><small>{g.note}</small></div>
+              <div class="cert-list">{g.items.map(([label, file]) => <a href={`/downloads/certificates/${file}`} download><span class="cert-name">{label}</span><span class="dl">↓</span></a>)}</div>
+            </div>
+          ))}
+        </div>
         <div class="hint"><strong>Появится уведомление «Сеть может отслеживаться»</strong><p>Это стандартное сообщение Android для любого добавленного вами сертификата, а не ошибка — и это безопасно и обратимо: удалить сертификат можно в любой момент в том же меню. Проверка идёт по официальным сертификатам Госуслуг. Браузеры используют добавленный центр сразу; некоторые приложения (например, банковские с привязкой сертификата) — нет, это ограничение самой системы, а не установки.</p></div>
       </>
     ) : platform === 'ios' ? (
@@ -96,6 +120,14 @@ const certs: Array<[string, string, 'root' | 'intermediate']> = [
   .vendor-paths>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px}
   .vendor-paths>div span{display:block;font-size:13px;font-weight:650;margin-bottom:4px}
   .vendor-paths>div small{color:var(--muted);font-size:12.5px;line-height:1.5}
+  .chain-explainer{background:var(--soft);border-radius:var(--radius);padding:16px 18px;margin:0 0 22px}
+  .chain-explainer strong{font-size:14px}
+  .chain-explainer p{color:var(--muted);font-size:14px;line-height:1.55;margin:7px 0 0}
+  .chain-explainer b{color:var(--text)}
+  .cert-groups{display:grid;gap:20px;margin-top:22px}
+  .cert-group-head strong{font-size:14px;display:block}
+  .cert-group-head small{color:var(--muted);font-size:13px;line-height:1.5;display:block;margin-top:3px}
+  .cert-group .cert-list{margin-top:10px}
   .footnote{color:var(--muted);font-size:12px;margin-top:26px}
   @media(max-width:580px){.guide{margin-top:30px}.badge{margin-top:30px}.command{flex-direction:column}.command button{height:43px}}
 </style>
