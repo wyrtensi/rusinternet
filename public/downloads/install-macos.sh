@@ -56,11 +56,14 @@ import_intermediate() {
 }
 
 echo "macOS попросит пароль администратора для системного хранилища."
+gost_note='Примечание: ГОСТ-сертификат не поддерживается macOS и пропущен (RSA-цепочка установлена).'
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$work_dir/russian_trusted_root_ca.cer"
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$work_dir/russian_trusted_root_ca_gost_2025.cer"
+# The GOST certificates use algorithms macOS cannot parse; make them best-effort
+# so the meaningful RSA chain always completes instead of aborting under set -e.
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$work_dir/russian_trusted_root_ca_gost_2025.cer" || echo "$gost_note" >&2
 import_intermediate "$work_dir/russian_trusted_sub_ca.cer"
 import_intermediate "$work_dir/russian_trusted_sub_ca_2024.cer"
-import_intermediate "$work_dir/russian_trusted_sub_ca_gost_2025.cer"
+import_intermediate "$work_dir/russian_trusted_sub_ca_gost_2025.cer" || echo "$gost_note" >&2
 
-echo "Готово. Все пять сертификатов добавлены в системную связку ключей."
+echo "Готово. Российские сертификаты добавлены в системную связку ключей."
 echo "Перезапустите браузер."

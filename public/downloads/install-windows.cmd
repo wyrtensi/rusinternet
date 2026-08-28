@@ -5,7 +5,7 @@ set "DRY_RUN=0"
 if /i "%~1"=="--dry-run" set "DRY_RUN=1"
 
 if "%DRY_RUN%"=="0" (
-  "%SystemRoot%\System32\net.exe" session >nul 2>&1
+  "%SystemRoot%\System32\net.exe" session >nul 2>&1 || "%SystemRoot%\System32\fltMC.exe" >nul 2>&1
   if errorlevel 1 goto :elevate
 )
 goto :main
@@ -84,7 +84,7 @@ set "CERT_PATH=%WORK_DIR%\%CERT_NAME%"
 if defined RUSINTERNET_CERT_SOURCE (
   copy /y "%RUSINTERNET_CERT_SOURCE%\%CERT_NAME%" "%CERT_PATH%" >nul
 ) else (
-  "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest -UseBasicParsing -Uri 'https://rusinternet.com/downloads/certificates/%CERT_NAME%' -OutFile '%CERT_PATH%'"
+  "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference='SilentlyContinue'; try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072 } catch {}; $u='https://rusinternet.com/downloads/certificates/%CERT_NAME%'; $o='%CERT_PATH%'; try { (New-Object Net.WebClient).DownloadFile($u,$o) } catch { Invoke-WebRequest -UseBasicParsing -Uri $u -OutFile $o }"
 )
 if errorlevel 1 exit /b 1
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "$stream=[IO.File]::OpenRead('%CERT_PATH%'); try { $hash=[BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($stream)).Replace('-','') } finally { $stream.Dispose() }; if ($hash -ne '%EXPECTED_HASH%') { exit 1 }"

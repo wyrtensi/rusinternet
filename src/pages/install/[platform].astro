@@ -29,11 +29,18 @@ const certs: Array<[string, string, 'root' | 'intermediate']> = [
         <div class="notice"><strong>Почему Android просит подтверждение</strong><p>Начиная с Android 11 ни сайт, ни приложение не могут добавить центр сертификации незаметно — это встроенная защита. Установка занимает минуту и выполняется вручную в настройках. Обойти подтверждение безопасно нельзя, поэтому автоматического скрипта без root не существует.</p></div>
         <ol>
           <li>Скачайте сертификаты ниже. Достаточно двух <b>корневых</b> — они закрывают ошибку доверия в браузере. Промежуточные можно добавить при желании.</li>
-          <li>Откройте <b>Настройки → Безопасность → Шифрование и учётные данные → Установить сертификат → Сертификат CA</b> и выберите скачанный файл. На части прошивок путь: Настройки → Безопасность и конфиденциальность → Другие параметры безопасности.</li>
+          <li>Откройте настройки и выберите <b>Установить сертификат → Сертификат CA</b>, затем скачанный файл. Точный путь зависит от производителя:</li>
+        </ol>
+        <div class="vendor-paths">
+          <div><span>Чистый Android, Pixel</span><small>Настройки → Безопасность и конфиденциальность → Дополнительно → Шифрование и учётные данные → Установить сертификат → Сертификат CA</small></div>
+          <div><span>Samsung (One UI)</span><small>Настройки → Безопасность и конфиденциальность → Другие параметры безопасности → Установить из хранилища устройства → Сертификат CA</small></div>
+          <div><span>Xiaomi (HyperOS / MIUI)</span><small>Настройки → Пароли и безопасность → Конфиденциальность → Шифрование и учётные данные → Установить сертификат → Сертификат CA</small></div>
+        </div>
+        <ol start="3">
           <li>Подтвердите системное предупреждение для каждого файла и перезапустите браузер.</li>
         </ol>
         <div class="cert-list">{certs.map(([label,file,role]) => <a href={`/downloads/certificates/${file}`} download>{role === 'root' && <span class="tag">нужен</span>}<span class="cert-name">{label}</span><span class="dl">↓</span></a>)}</div>
-        <div class="hint"><strong>Появится уведомление «Сеть может отслеживаться»</strong><p>Это стандартное сообщение Android для любого добавленного вами сертификата, а не ошибка. Проверка идёт по официальным сертификатам Госуслуг. Браузеры используют добавленный центр сразу; некоторые приложения — нет, это ограничение самой системы.</p></div>
+        <div class="hint"><strong>Появится уведомление «Сеть может отслеживаться»</strong><p>Это стандартное сообщение Android для любого добавленного вами сертификата, а не ошибка — и это безопасно и обратимо: удалить сертификат можно в любой момент в том же меню. Проверка идёт по официальным сертификатам Госуслуг. Браузеры используют добавленный центр сразу; некоторые приложения (например, банковские с привязкой сертификата) — нет, это ограничение самой системы, а не установки.</p></div>
       </>
     ) : platform === 'ios' ? (
       <>
@@ -85,6 +92,10 @@ const certs: Array<[string, string, 'root' | 'intermediate']> = [
   .hint{margin-top:22px;background:var(--soft);border-radius:var(--radius);padding:15px 18px}
   .hint strong{font-size:14px}
   .hint p{color:var(--muted);font-size:13px;line-height:1.55;margin:6px 0 0}
+  .vendor-paths{display:grid;gap:8px;margin:14px 0 0}
+  .vendor-paths>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px}
+  .vendor-paths>div span{display:block;font-size:13px;font-weight:650;margin-bottom:4px}
+  .vendor-paths>div small{color:var(--muted);font-size:12.5px;line-height:1.5}
   .footnote{color:var(--muted);font-size:12px;margin-top:26px}
   @media(max-width:580px){.guide{margin-top:30px}.badge{margin-top:30px}.command{flex-direction:column}.command button{height:43px}}
 </style>

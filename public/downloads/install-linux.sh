@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+if [ -z "${BASH_VERSION:-}" ]; then
+  echo "Запустите через bash: bash install-linux.sh (в Alpine: apk add bash)" >&2
+  exit 1
+fi
 set -euo pipefail
 
 dry_run=0
@@ -39,23 +43,22 @@ done
 
 echo "CERTIFICATES_VERIFIED=5"
 
-if ! command -v openssl >/dev/null 2>&1; then
-  echo "Для безопасной установки требуется openssl." >&2
-  exit 1
-fi
-
 pem_dir="$work_dir/pem"
 mkdir "$pem_dir"
 root_names=(russian_trusted_root_ca.cer russian_trusted_root_ca_gost_2025.cer)
+# Convert the two roots to PEM without requiring openssl (absent on minimal
+# systems and containers): the RSA root is already PEM; only the GOST root is
+# DER, and base64 (present in coreutils and busybox) turns DER into PEM.
+der_to_pem() {
+  { echo "-----BEGIN CERTIFICATE-----"; base64 "$1" | tr -d '\r\n' | fold -w 64; echo; echo "-----END CERTIFICATE-----"; } > "$2"
+}
 for name in "${root_names[@]}"; do
-  if grep -q -- '-----BEGIN CERTIFICATE-----' "$work_dir/$name"; then
-    openssl x509 -in "$work_dir/$name" -out "$pem_dir/${name%.cer}.crt" >/dev/null 2>&1
+  src="$work_dir/$name"; out="$pem_dir/${name%.cer}.crt"
+  if grep -q -- '-----BEGIN CERTIFICATE-----' "$src"; then
+    cp "$src" "$out"
   else
-    openssl x509 -inform DER -in "$work_dir/$name" -out "$pem_dir/${name%.cer}.crt" >/dev/null 2>&1
-  fi || {
-    echo "Система не смогла прочитать $name. Ничего не установлено." >&2
-    exit 1
-  }
+    der_to_pem "$src" "$out"
+  fi
 done
 echo "ROOT_CERTIFICATES_CONVERTED=2"
 (( dry_run == 1 )) && exit 0
@@ -90,4 +93,14 @@ else
 fi
 
 echo "Готово. Два корневых сертификата добавлены в системное хранилище."
-echo "Перезапустите браузер. Firefox и Chromium с собственным NSS-хранилищем могут потребовать ручного импорта."
+
+# Optional, per-user (no sudo): also add the two roots to the Chromium NSS
+# store so Chromium/Chrome trust them without a manual import.
+if command -v certutil >/dev/null 2>&1 && [[ -d "$HOME/.pki/nssdb" ]]; then
+  for name in "${root_names[@]}"; do
+    certutil -d sql:"$HOME/.pki/nssdb" -A -t "C,," -n "rusinternet ${name%.cer}" -i "$pem_dir/${name%.cer}.crt" 2>/dev/null || true
+  done
+  echo "Дополнительно: корни добавлены в NSS-хранилище Chromium (~/.pki/nssdb)."
+fi
+
+echo "Перезапустите браузер. Firefox использует собственное хранилище — для него может потребоваться ручной импорт."
