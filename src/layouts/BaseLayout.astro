@@ -81,12 +81,22 @@ const hasLanguageAlternate = canonical === 'https://rusinternet.com/' || canonic
     </header>
     <main><slot /></main>
     <footer>
-      <div><strong>{brand}</strong><p>{locale === 'ru' ? 'Открытый помощник по установке доверенных сертификатов.' : 'An open helper for installing trusted certificates.'}</p></div>
-      <div class="footer-links">
-        <a href={`${homeHref}#safety`}>{locale === 'ru' ? 'Безопасность' : 'Safety'}</a>
-        <a href="/downloads/manifest.json">Manifest</a>
-        <a href="/.well-known/security.txt">security.txt</a>
+      <div class="footer-top">
+        <div class="footer-brand"><strong>{brand}</strong><p>{locale === 'ru' ? 'Открытый помощник по установке доверенных сертификатов.' : 'An open helper for installing trusted certificates.'}</p></div>
+        <nav class="footer-links" aria-label={locale === 'ru' ? 'Ссылки' : 'Links'}>
+          <a href={`${homeHref}#safety`}>{locale === 'ru' ? 'Безопасность' : 'Safety'}</a>
+          <a href="https://github.com/wyrtensi/rusinternet" target="_blank" rel="noopener">{locale === 'ru' ? 'Открытый код' : 'Open source'}</a>
+          <a href="https://www.gosuslugi.ru/crt" target="_blank" rel="noopener">{locale === 'ru' ? 'Официальный источник' : 'Official source'}</a>
+          <a href="mailto:wyrtensi@gmail.com">{locale === 'ru' ? 'Контакты' : 'Contact'}</a>
+        </nav>
       </div>
+      <div class="footer-fine">
+        <p>{locale === 'ru' ? 'Независимый некоммерческий проект. Не связан с Госуслугами, Минцифры России, госорганами и банками и не является их официальным ресурсом.' : 'An independent, non-commercial project. Not affiliated with Gosuslugi, the Russian Ministry of Digital Development, any government body or bank, and not an official resource of theirs.'}</p>
+        <p>{locale === 'ru' ? 'Открытый исходный код: ' : 'Open source: '}<a href="https://github.com/wyrtensi/rusinternet" target="_blank" rel="noopener">github.com/wyrtensi/rusinternet</a>{locale === 'ru' ? '. Сертификаты взяты из официальной публикации Госуслуг (gu-st.ru), распространяются без изменений и сверены по SHA‑256 (' : '. The certificates come from the official Gosuslugi publication (gu-st.ru), are redistributed unmodified and verified by SHA‑256 ('}<a href="/downloads/manifest.json">{locale === 'ru' ? 'контрольные суммы' : 'checksums'}</a>{').'}</p>
+        <p>{locale === 'ru' ? 'Инструменты предоставляются «как есть», без гарантий. Установка меняет доверенные корневые сертификаты системы — выполняйте её по своему усмотрению; удалить их можно в любой момент.' : 'The tools are provided “as is”, without warranty. Installation changes your system’s trusted root certificates — do it at your own discretion; you can remove them at any time.'}</p>
+        <p>{locale === 'ru' ? 'Сайт не собирает персональные данные, не использует аналитику и куки.' : 'This site collects no personal data and uses no analytics or cookies.'}</p>
+      </div>
+      <p class="footer-copy">© 2026 · rusinternet.com — {locale === 'ru' ? 'открытый некоммерческий проект' : 'an open, non-commercial project'}</p>
     </footer>
     <script>
       const button = document.querySelector<HTMLButtonElement>('#theme-toggle');

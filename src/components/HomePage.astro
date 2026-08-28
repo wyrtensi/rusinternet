@@ -2,6 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { INSTALLER_HASHES } from '../lib/release';
+import { OS_ICONS } from '../lib/os-icons';
 
 interface Props { locale: 'ru' | 'en' }
 const { locale } = Astro.props;
@@ -13,11 +14,11 @@ const description = ru
   ? 'Браузер пишет «Ваше подключение не защищено» на Госуслугах, в банке, на маркетплейсе, в соцсетях (ВКонтакте, Одноклассники) или на новостном сайте? Установите российские доверенные сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux. Бесплатно, с проверкой файлов.'
   : 'Browser shows “Your connection is not secure” on Russian government, bank, marketplace, social network or news sites? Install the Russian trusted (Ministry of Digital Development) certificates on Windows, Android, iPhone, macOS and Linux. Free, with file verification.';
 const platforms = [
-  ['windows', 'mdi:microsoft-windows', 'Windows'],
-  ['macos', 'mdi:apple', 'macOS'],
-  ['android', 'mdi:android', 'Android'],
-  ['ios', 'mdi:apple', 'iPhone / iPad'],
-  ['linux', 'mdi:linux', 'Linux']
+  ['windows', 'Windows'],
+  ['macos', 'macOS'],
+  ['android', 'Android'],
+  ['ios', 'iPhone / iPad'],
+  ['linux', 'Linux']
 ] as const;
 const donateUrl = 'https://finance.ozon.ru/apps/sbp/ozonbankpay/01a042c3-8900-76b6-92ea-9db2523d91d2';
 // Banner slots are data-driven: add an entry to show another partner.
@@ -56,22 +57,32 @@ const errorSamples = ru
   : ['Your connection is not secure', 'The security certificate is not trusted', 'This site can’t provide a secure connection', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER'];
 const faq: Array<[string, string]> = ru
   ? [
-      ['Это безопасно?', 'Установщики принимают только пять заранее известных файлов и проверяют SHA-256 до системных изменений. Исходные файлы сверены с официальной публикацией Госуслуг.'],
-      ['Почему Госуслуги пишут, что сайт небезопасен?', 'Часть зарубежных центров сертификации перестала доверять сертификатам российских сайтов. Браузер видит «неизвестный» сертификат и показывает ошибку, хотя сам сайт работает. После установки российских корневых сертификатов ошибка пропадает.'],
-      ['Поможет при ошибке сертификата в онлайн-банке?', 'Да, если банк использует сертификат НУЦ Минцифры (Сбербанк, ВТБ, Альфа-Банк и другие). После установки и перезапуска браузера или приложения соединение снова считается доверенным.'],
-      ['Не открывается Ozon или Wildberries из-за сертификата?', 'Это та же ошибка доверия. Установите российские сертификаты и перезапустите браузер — маркетплейсы откроются как обычно.'],
-      ['Почему Windows просит права администратора?', 'Сертификаты добавляются в системные хранилища Root и CA, поэтому Windows должна подтвердить действие.'],
-      ['Можно удалить сертификаты?', 'Да, через системное управление сертификатами. Автоматического удаления нет: так меньше риск удалить чужой сертификат с похожим именем.'],
-      ['Почему Android и iPhone показывают дополнительные экраны?', 'Мобильные системы не разрешают сайту незаметно добавить центр сертификации. Это штатная защита: установку нужно подтвердить в настройках.']
+      ['Почему браузер пишет «Ваше подключение не защищено»?', 'Российские сайты перешли на сертификаты НУЦ Минцифры, потому что зарубежные центры сертификации перестали их обслуживать и начали отзывать. Браузеры пока не знают этот корневой сертификат и показывают ошибку, хотя сам сайт исправно работает. После установки российских сертификатов и перезапуска браузера ошибка пропадает.'],
+      ['Это безопасно? Это не вирус и не слежка?', 'Это обычный корневой сертификат, а не программа: он ничего не устанавливает, не читает ваши файлы и не следит за тем, какие сайты вы открываете. Как и любой корневой сертификат, он технически даёт владельцу возможность подписать сертификат для чужого домена, но подтверждённых случаев злоупотребления сертификатом НУЦ нет, а банковские приложения и мессенджеры защищены отдельно. Файлы на этом сайте распакованы из официальной публикации Госуслуг и сверяются по SHA-256, а удалить их можно в любой момент.'],
+      ['Установил, но сайт всё равно не открывается. Почему?', 'Чаще всего браузер просто не перезапущен или показывает страницу из кэша — закройте его полностью и откройте заново. Вторая частая причина — установлен только один файл: нужны оба, и корневой (Russian Trusted Root CA), и выпускающий (Russian Trusted Sub CA). Если вы пользуетесь Firefox, у него отдельное хранилище — см. вопрос про Firefox ниже.'],
+      ['В каком браузере ставить, а где уже работает?', 'Chrome, Edge, Opera и Safari берут сертификаты из хранилища операционной системы, поэтому достаточно установить сертификат один раз в систему — и все они начнут открывать сайты. Firefox — исключение: у него собственное хранилище. После установки браузер нужно полностью закрыть и открыть заново.'],
+      ['Это поможет открыть YouTube, Instagram или заблокированные сайты?', 'Нет. Сертификаты убирают только ошибку доверия на российских сайтах, которые перешли на НУЦ Минцифры, — это не VPN и не обход блокировок. Заблокированные ресурсы устроены иначе, и сертификат на доступ к ним не влияет.'],
+      ['Не открывается онлайн-банк (Сбер, ВТБ, Альфа) — поможет?', 'Да, если банк перешёл на сертификат НУЦ Минцифры — а это сделали Сбербанк, ВТБ, Альфа-Банк, ПСБ, РСХБ и другие. Установите корневой и выпускающий сертификаты и перезапустите браузер — веб-версия банка снова откроется. В мобильном приложении сертификат обычно уже встроен, поэтому оно работает и без установки.'],
+      ['На Android появляется «Сеть может отслеживаться» — это опасно?', 'Нет, это стандартное предупреждение Android, которое появляется всегда, когда в системе есть добавленный вручную сертификат. Само по себе оно не значит, что за вами следят или что телефон заражён. Ошибка доверия возникает именно в браузере, а банковские приложения обычно работают и без установки.'],
+      ['На iPhone профиль установился, но пишет «не проверено».', 'На iPhone и iPad установка идёт в два шага: сначала вы ставите профиль, а потом отдельно включаете к нему доверие. Откройте Настройки → Основные → Об этом устройстве → «Настройки доверия сертификатов» и включите переключатель напротив «Russian Trusted Root CA». До этого шага статус «не проверено» — это нормально.'],
+      ['В Firefox сертификаты не работают, хотя в системе установлены.', 'У Firefox отдельное хранилище на каждый профиль, и системные сертификаты он по умолчанию не использует. На компьютере откройте about:config и включите параметр security.enterprise_roots.enabled — тогда Firefox начнёт доверять системным сертификатам. Либо добавьте оба сертификата вручную: Настройки → Приватность и защита → Управление сертификатами → «Центры сертификации» → Импортировать.'],
+      ['Рабочий компьютер без прав администратора — как быть?', 'Корневой сертификат можно поставить в хранилище «Текущий пользователь» → «Доверенные корневые центры сертификации» без прав администратора, и Chrome с Edge для вашей учётной записи его увидят. Если компьютер управляется политиками организации и установка заблокирована, правильнее обратиться к системному администратору.'],
+      ['Можно удалить сертификаты, не пострадает ли безопасность?', 'Да, удалить можно в любой момент через системное управление сертификатами (на iPhone — удалив профиль). Добавление этого корня не ослабляет проверку остальных сайтов: они по-прежнему проверяются своими центрами сертификации. После удаления перестанут открываться только российские сайты на сертификатах НУЦ Минцифры.'],
+      ['Как не попасться на поддельные сертификаты?', 'Настоящий сертификат — это не программа: он ничего не устанавливает и никогда не просит пароль от Госуслуг или банка. Мошенники делают поддельные сайты с баннером «установите доверенный сертификат» и подсовывают вредоносную программу. Берите файлы только из официальных источников — с Госуслуг, с gu-st.ru или с этой страницы, где они сверены по контрольным суммам.']
     ]
   : [
-      ['Is this safe?', 'Installers accept only five known files and verify SHA-256 before changing system settings. Source files were checked against the official Gosuslugi publication.'],
-      ['Why do Russian sites say the connection is not secure?', 'Some foreign certificate authorities stopped trusting Russian websites’ certificates. The browser sees an “unknown” certificate and shows an error even though the site itself works. Installing the Russian root certificates removes the error.'],
-      ['Does it help with a bank certificate error?', 'Yes, if the bank uses a Ministry of Digital Development certificate. After installing and restarting the browser or app, the connection is trusted again.'],
-      ['Ozon or Wildberries will not open because of a certificate?', 'That is the same trust error. Install the Russian certificates and restart the browser — the marketplaces open normally.'],
-      ['Why does Windows request administrator rights?', 'Certificates are added to the system Root and CA stores, so Windows must confirm the action.'],
-      ['Can I remove the certificates?', 'Yes, through your system certificate manager. There is no automatic remover to avoid deleting an unrelated certificate with a similar name.'],
-      ['Why do Android and iPhone show extra screens?', 'Mobile operating systems do not allow a website to silently add a certificate authority. You must confirm it in Settings.']
+      ['Why does the browser say “Your connection is not secure”?', 'Russian sites moved to the Ministry of Digital (НУЦ Минцифры) certificates because foreign certificate authorities stopped serving them and began revoking. Browsers do not yet know this root certificate and show an error, even though the site itself works. After installing the Russian certificates and restarting the browser, the error disappears.'],
+      ['Is this safe? Is it a virus or surveillance?', 'It is a plain root certificate, not a program: it installs nothing, reads no files and does not track which sites you open. Like any root certificate it technically lets its owner sign a certificate for another domain, but there are no confirmed cases of the НУЦ root being abused, and banking apps and messengers are protected separately. The files here are unpacked from the official Gosuslugi publication and verified by SHA-256, and you can remove them at any time.'],
+      ['I installed it but the site still won’t open. Why?', 'Most often the browser was not fully restarted or is showing a cached page — close it completely and reopen. The second common reason is installing only one file: you need both the root (Russian Trusted Root CA) and the issuing one (Russian Trusted Sub CA). If you use Firefox, it has a separate store — see the Firefox question below.'],
+      ['Which browser needs it, and where does it already work?', 'Chrome, Edge, Opera and Safari read certificates from the operating-system store, so installing the certificate once into the system covers all of them. Firefox is the exception: it keeps its own store. After installing, close and reopen the browser fully.'],
+      ['Will it open YouTube, Instagram or blocked sites?', 'No. The certificates only remove the trust error on Russian sites that moved to the НУЦ Минцифры chain — this is not a VPN and not a way around blocking. Blocked resources work differently and are unaffected.'],
+      ['My online bank (Sber, VTB, Alfa) won’t open — will it help?', 'Yes, if the bank moved to the НУЦ Минцифры certificate — Sberbank, VTB, Alfa-Bank, PSB, RSHB and others did. Install the root and issuing certificates and restart the browser, and the bank’s web version opens again. The mobile app usually has the certificate built in and works without installing anything.'],
+      ['Android shows “Network may be monitored” — is that dangerous?', 'No, this is the standard Android notice that appears whenever a manually added certificate is present. On its own it does not mean you are being watched or that the phone is infected. The trust error shows up in the browser, while banking apps usually work without installing anything.'],
+      ['On iPhone the profile installed but says “Not Verified”.', 'On iPhone and iPad installation takes two steps: first you install the profile, then you separately enable trust for it. Open Settings → General → About → “Certificate Trust Settings” and turn on the switch next to “Russian Trusted Root CA”. Until that step the “Not Verified” status is normal.'],
+      ['Certificates don’t work in Firefox even though they’re in the system.', 'Firefox keeps a separate store per profile and does not use the system one by default. On a computer, open about:config and enable security.enterprise_roots.enabled, and Firefox will trust the system certificates. Or add both certificates manually: Settings → Privacy & Security → Manage Certificates → Authorities → Import.'],
+      ['A work computer without admin rights — what can I do?', 'You can add the root to the “Current User” → “Trusted Root Certification Authorities” store without admin rights, and Chrome and Edge will honor it for your account. If the computer is managed by organization policy and installation is blocked, it is best to ask your IT administrator.'],
+      ['Can I remove the certificates without weakening security?', 'Yes, you can remove them at any time via your system certificate manager (on iPhone, by deleting the profile). Adding this root does not weaken checks for other sites — they are still validated by their own certificate authorities. After removal, only Russian sites using the НУЦ Минцифры certificates stop opening.'],
+      ['How do I avoid fake certificates?', 'A real certificate is not a program: it installs nothing and never asks for your Gosuslugi or bank password. Scammers build fake sites with an “install a trusted certificate” banner and push malware instead. Take the files only from official sources — Gosuslugi, gu-st.ru or this page, where they are verified by checksums.']
     ];
 ---
 <BaseLayout {title} {description} {locale} canonical={ru ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'}>
@@ -83,7 +94,7 @@ const faq: Array<[string, string]> = ru
     <div class="installer-card" data-locale={locale} data-macos-hash={INSTALLER_HASHES.macos} data-linux-hash={INSTALLER_HASHES.linux}>
       <div class="detected"><span class="status-dot"></span><span id="detected-label">{ru ? 'Определено: Windows' : 'Detected: Windows'}</span></div>
       <div class="selected-platform">
-        <span class="selected-icon" id="selected-icon"><Icon name="mdi:microsoft-windows" /></span>
+        <span class="selected-icon" id="selected-icon" set:html={OS_ICONS.windows}></span>
         <div><strong id="selected-title">Windows</strong><p id="selected-copy">{ru ? 'Установщик всё сделает сам' : 'The installer will do the work'}</p></div>
       </div>
       <a class="primary-action" id="primary-action" href="/downloads/install-windows.cmd" download>
@@ -98,13 +109,15 @@ const faq: Array<[string, string]> = ru
 
     <p class="choose-label">{ru ? 'Или выберите свою систему' : 'Or choose your system'}</p>
     <div class="platforms" role="group" aria-label={ru ? 'Выбор операционной системы' : 'Operating system selection'}>
-      {platforms.map(([id, icon, label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}><Icon name={icon}/><span>{label}</span></button>)}
+      {platforms.map(([id, label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}><span class="os-ic" set:html={OS_ICONS[id]}></span><span>{label}</span></button>)}
     </div>
   </section>
 
   <section class="trust-strip" id="safety" data-reveal>
     {trust.map(([icon, head, sub]) => <div><span class="trust-ic"><Icon name={icon}/></span><p><strong>{head}</strong><small>{sub}</small></p></div>)}
   </section>
+
+  <p class="browsers" data-reveal><span class="browsers-plus"><Icon name="mdi:check" /></span>{ru ? 'Устанавливается один раз — и сайты открываются в вашем любимом браузере: Chrome, Firefox, Edge, Opera, Vivaldi, Brave и других.' : 'You install it once — and sites open in your favourite browser: Chrome, Firefox, Edge, Opera, Vivaldi, Brave and others.'}</p>
 
   <section class="content-section" id="how" data-reveal>
     <div class="section-heading"><span>{ru ? 'Как это работает' : 'How it works'}</span><h2>{ru ? 'Три понятных шага' : 'Three clear steps'}</h2><p>{ru ? 'Сайт подбирает безопасный способ для вашей системы. Сертификаты не нужно скачивать по одному.' : 'The site chooses a safe method for your system. You do not download certificates one by one.'}</p></div>
@@ -241,8 +254,7 @@ const faq: Array<[string, string]> = ru
   .detected{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px;margin:0 4px 14px}
   .status-dot{width:7px;height:7px;background:var(--green);border-radius:99px}
   .selected-platform{display:flex;align-items:center;gap:15px;padding:0 3px 16px}
-  .selected-icon{width:48px;height:48px;flex:none;display:grid;place-items:center;background:var(--soft);border-radius:var(--radius-sm);color:var(--blue)}
-  .selected-icon svg{width:26px;height:26px}
+  .selected-icon{width:48px;height:48px;flex:none;display:grid;place-items:center;padding:11px;background:var(--soft);border-radius:var(--radius-sm);color:var(--blue)}
   .selected-platform strong{font-size:18px}
   .selected-platform p{margin:4px 0 0;color:var(--muted);font-size:13px}
   .primary-action{height:54px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;text-decoration:none;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 16px color-mix(in srgb,var(--blue) 20%,transparent);transition:transform .18s,background .18s,box-shadow .18s}
@@ -260,7 +272,7 @@ const faq: Array<[string, string]> = ru
   .choose-label{margin:22px 0 12px;color:var(--muted);font-size:12px}
   .platforms{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
   .platforms button{min-width:92px;height:74px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--muted);display:grid;place-items:center;gap:6px;padding:8px;cursor:pointer;font-size:11px;transition:border-color .15s,color .15s,box-shadow .15s}
-  .platforms button svg{width:24px;height:24px}
+  .os-ic{display:grid;place-items:center;width:24px;height:24px}
   .platforms button:hover{color:var(--text);border-color:color-mix(in srgb,var(--blue) 35%,var(--line))}
   .platforms button.active{color:var(--blue);border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;background:color-mix(in srgb,var(--blue) 6%,var(--surface))}
   /* Trust strip */
@@ -272,6 +284,9 @@ const faq: Array<[string, string]> = ru
   .trust-strip strong,.trust-strip small{display:block}
   .trust-strip strong{font-size:13.5px}
   .trust-strip small{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .browsers{max-width:820px;margin:18px auto 0;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px;line-height:1.5;text-align:left}
+  .browsers-plus{flex:none;width:24px;height:24px;display:grid;place-items:center;border-radius:99px;background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+  .browsers-plus svg{width:16px;height:16px}
   /* Sections */
   .content-section{max-width:1050px;margin:64px auto 0;padding:0 24px}
   .section-heading{text-align:center;max-width:640px;margin:0 auto 28px}
