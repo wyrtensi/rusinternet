@@ -10,20 +10,26 @@ const title = ru
   ? 'Российские сертификаты: исправить ошибку безопасности сайта'
   : 'Russian trusted certificates: fix the “not secure” site error';
 const description = ru
-  ? 'Браузер пишет «Ваше подключение не защищено» на Госуслугах, в банке или на маркетплейсе? Установите российские доверенные сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux. Бесплатно, с проверкой файлов.'
-  : 'Browser shows “Your connection is not secure” on Russian government, bank or marketplace sites? Install the Russian trusted (Ministry of Digital Development) certificates on Windows, Android, iPhone, macOS and Linux. Free, with file verification.';
+  ? 'Браузер пишет «Ваше подключение не защищено» на Госуслугах, в банке, на маркетплейсе, в соцсетях (ВКонтакте, Одноклассники) или на новостном сайте? Установите российские доверенные сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux. Бесплатно, с проверкой файлов.'
+  : 'Browser shows “Your connection is not secure” on Russian government, bank, marketplace, social network or news sites? Install the Russian trusted (Ministry of Digital Development) certificates on Windows, Android, iPhone, macOS and Linux. Free, with file verification.';
 const platforms = [
-  ['windows','logos:microsoft-windows-icon','Windows'],
-  ['macos','logos:apple','macOS'],
-  ['android','logos:android-icon','Android'],
-  ['ios','logos:apple','iPhone / iPad'],
-  ['linux','logos:linux-tux','Linux']
+  ['windows', 'mdi:microsoft-windows', 'Windows'],
+  ['macos', 'mdi:apple', 'macOS'],
+  ['android', 'mdi:android', 'Android'],
+  ['ios', 'mdi:apple', 'iPhone / iPad'],
+  ['linux', 'mdi:linux', 'Linux']
 ] as const;
 const donateUrl = 'https://finance.ozon.ru/apps/sbp/ozonbankpay/01a042c3-8900-76b6-92ea-9db2523d91d2';
-const partners = [
+// Banner slots are data-driven: add an entry to show another partner.
+// `variant: 'feature'` renders a large full-width banner; default is a compact card.
+// Empty slots are intentionally not rendered, so the layout never looks like ad space.
+const partners: Array<{
+  img: string; label: string; title: string; copy: string;
+  cta: string; href: string; rel: string; variant?: 'feature' | 'compact';
+}> = [
   {
     img: '/assets/wyrtensi.jpeg',
-    label: ru ? 'ПАРТНЁР' : 'PARTNER',
+    label: ru ? 'Партнёр' : 'Partner',
     title: ru ? 'Музыка артиста wyrtensi' : 'Music by wyrtensi',
     copy: ru ? 'Слушайте на всех площадках' : 'Stream on every platform',
     cta: 'band.link/wyrtensi',
@@ -31,12 +37,23 @@ const partners = [
     rel: 'sponsored noopener noreferrer'
   }
 ];
+const trust = ru
+  ? [
+      ['mdi:shield-check-outline', 'Официальные сертификаты', 'Сверены с публикацией Госуслуг'],
+      ['mdi:file-eye-outline', 'Прозрачная установка', 'Скрипты открыты для проверки'],
+      ['mdi:cog-outline', 'Только сертификаты', 'Без установки сторонних программ']
+    ]
+  : [
+      ['mdi:shield-check-outline', 'Official certificates', 'Checked against the Gosuslugi source'],
+      ['mdi:file-eye-outline', 'Transparent install', 'Scripts are open for review'],
+      ['mdi:cog-outline', 'Certificates only', 'No third-party software installed']
+    ];
 const services = ru
-  ? ['Госуслуги и государственные порталы', 'Онлайн-банки: Сбербанк, ВТБ, Альфа-Банк', 'Маркетплейсы: Ozon, Wildberries', 'Другие сайты на сертификатах Минцифры']
-  : ['Gosuslugi and government portals', 'Online banks: Sberbank, VTB, Alfa-Bank', 'Marketplaces: Ozon, Wildberries', 'Other sites using Ministry of Digital certificates'];
+  ? ['Госуслуги и государственные порталы', 'Онлайн-банки: Сбербанк, ВТБ, Альфа-Банк', 'Маркетплейсы: Ozon, Wildberries', 'Соцсети: ВКонтакте, Одноклассники', 'Новостные сайты и СМИ', 'Другие сайты на сертификатах Минцифры']
+  : ['Gosuslugi and government portals', 'Online banks: Sberbank, VTB, Alfa-Bank', 'Marketplaces: Ozon, Wildberries', 'Social networks: VK, Odnoklassniki', 'News sites and media', 'Other sites using Ministry of Digital certificates'];
 const errorSamples = ru
-  ? ['«Ваше подключение не защищено»', '«Сертификат безопасности не является доверенным»', '«Этот сайт не может обеспечить безопасное подключение»', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER']
-  : ['“Your connection is not secure”', '“The security certificate is not trusted”', '“This site can’t provide a secure connection”', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER'];
+  ? ['Ваше подключение не защищено', 'Сертификат безопасности не является доверенным', 'Этот сайт не может обеспечить безопасное подключение', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER']
+  : ['Your connection is not secure', 'The security certificate is not trusted', 'This site can’t provide a secure connection', 'ERR_CERT_AUTHORITY_INVALID', 'SEC_ERROR_UNKNOWN_ISSUER'];
 const faq: Array<[string, string]> = ru
   ? [
       ['Это безопасно?', 'Установщики принимают только пять заранее известных файлов и проверяют SHA-256 до системных изменений. Исходные файлы сверены с официальной публикацией Госуслуг.'],
@@ -59,40 +76,38 @@ const faq: Array<[string, string]> = ru
 ---
 <BaseLayout {title} {description} {locale} canonical={ru ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'}>
   <section class="hero">
-    <div class="eyebrow"><span></span>{ru ? 'Госуслуги · банки · маркетплейсы' : 'Gov · banks · marketplaces'}</div>
-    <h1>{ru ? 'Сайт пишет «не защищено»?' : 'Site says “not secure”?'}<br/><span>{ru ? 'Исправим за пару минут' : 'Fixed in a couple of minutes'}</span></h1>
-    <p class="hero-copy">{ru ? 'Если браузер показывает ошибку сертификата на Госуслугах, в банке или на маркетплейсе — установите российские доверенные сертификаты. Быстро, понятно и безопасно.' : 'If your browser shows a certificate error on Russian government, banking or marketplace sites, install the Russian trusted certificates. Fast, clear and safe.'}</p>
+    <div class="eyebrow">{ru ? 'Госуслуги · банки · соцсети · маркетплейсы' : 'Gov · banks · social · marketplaces'}</div>
+    <h1>{ru ? 'Сайт пишет «не защищено»?' : 'Site says “not secure”?'}<br/><span>{ru ? 'Установите российские сертификаты' : 'Install the Russian certificates'}</span></h1>
+    <p class="hero-copy">{ru ? 'Официальные доверенные сертификаты Минцифры устраняют ошибку доверия на Госуслугах, в онлайн-банках и на маркетплейсах. Установка занимает несколько минут и не требует специальных знаний.' : 'The official Ministry of Digital trusted certificates fix the trust error on Russian government, banking and marketplace sites. Installation takes a few minutes and needs no special skills.'}</p>
 
     <div class="installer-card" data-locale={locale} data-macos-hash={INSTALLER_HASHES.macos} data-linux-hash={INSTALLER_HASHES.linux}>
       <div class="detected"><span class="status-dot"></span><span id="detected-label">{ru ? 'Определено: Windows' : 'Detected: Windows'}</span></div>
       <div class="selected-platform">
-        <span class="selected-icon" id="selected-icon"><Icon name="logos:microsoft-windows-icon" /></span>
+        <span class="selected-icon" id="selected-icon"><Icon name="mdi:microsoft-windows" /></span>
         <div><strong id="selected-title">Windows</strong><p id="selected-copy">{ru ? 'Установщик всё сделает сам' : 'The installer will do the work'}</p></div>
       </div>
       <a class="primary-action" id="primary-action" href="/downloads/install-windows.cmd" download>
-        <span id="action-label">{ru ? 'Установить для Windows' : 'Install for Windows'}</span><span aria-hidden="true">→</span>
+        <span id="action-label">{ru ? 'Установить для Windows' : 'Install for Windows'}</span><span class="arrow" aria-hidden="true"><Icon name="mdi:arrow-right" /></span>
       </a>
       <div class="command-panel" id="command-panel" hidden>
         <p>{ru ? 'Откройте Терминал, вставьте команду и нажмите Enter:' : 'Open Terminal, paste the command and press Enter:'}</p>
         <div class="command-row"><code id="install-command"></code><button id="copy-command" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
       </div>
-      <p class="microcopy"><span>✓</span> {ru ? 'Бесплатно · Без регистрации · Проверка SHA-256' : 'Free · No sign-up · SHA-256 verified'}</p>
+      <p class="microcopy"><Icon name="mdi:lock-check-outline" /> {ru ? 'Файлы проверяются по контрольным суммам SHA-256' : 'Files are verified with SHA-256 checksums'}</p>
     </div>
 
     <p class="choose-label">{ru ? 'Или выберите свою систему' : 'Or choose your system'}</p>
     <div class="platforms" role="group" aria-label={ru ? 'Выбор операционной системы' : 'Operating system selection'}>
-      {platforms.map(([id,icon,label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}>{id === 'windows' ? <span class="windows-glyph">⊞</span> : <Icon name={icon}/>}<span>{label}</span></button>)}
+      {platforms.map(([id, icon, label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}><Icon name={icon}/><span>{label}</span></button>)}
     </div>
   </section>
 
-  <section class="trust-strip" id="safety">
-    <div><span>✓</span><p><strong>{ru ? 'Официальные сертификаты' : 'Official certificates'}</strong><small>{ru ? 'Сверены с Госуслугами' : 'Checked against Gosuslugi'}</small></p></div>
-    <div><span>⌁</span><p><strong>{ru ? 'Прозрачная установка' : 'Transparent installation'}</strong><small>{ru ? 'Скрипты доступны для проверки' : 'Scripts are open for inspection'}</small></p></div>
-    <div><span>♢</span><p><strong>{ru ? 'Только системные изменения' : 'Only trust-store changes'}</strong><small>{ru ? 'Без программ и рекламы' : 'No apps or advertising'}</small></p></div>
+  <section class="trust-strip" id="safety" data-reveal>
+    {trust.map(([icon, head, sub]) => <div><span class="trust-ic"><Icon name={icon}/></span><p><strong>{head}</strong><small>{sub}</small></p></div>)}
   </section>
 
-  <section class="content-section" id="how">
-    <div class="section-heading"><span>{ru ? 'КАК ЭТО РАБОТАЕТ' : 'HOW IT WORKS'}</span><h2>{ru ? 'Три понятных шага' : 'Three clear steps'}</h2><p>{ru ? 'Сайт подбирает безопасный способ для вашей системы. Сертификаты не нужно скачивать по одному.' : 'The site chooses a safe method for your system. You do not download certificates one by one.'}</p></div>
+  <section class="content-section" id="how" data-reveal>
+    <div class="section-heading"><span>{ru ? 'Как это работает' : 'How it works'}</span><h2>{ru ? 'Три понятных шага' : 'Three clear steps'}</h2><p>{ru ? 'Сайт подбирает безопасный способ для вашей системы. Сертификаты не нужно скачивать по одному.' : 'The site chooses a safe method for your system. You do not download certificates one by one.'}</p></div>
     <div class="steps">
       <article><b>1</b><h3>{ru ? 'Выберите систему' : 'Choose your system'}</h3><p>{ru ? 'Мы определяем её автоматически, но выбор можно изменить.' : 'We detect it automatically, and you can always change it.'}</p></article>
       <article><b>2</b><h3>{ru ? 'Запустите установку' : 'Start installation'}</h3><p>{ru ? 'Файлы загружаются с сервера и сверяются по контрольным суммам.' : 'Files are fetched from the server and checked against known hashes.'}</p></article>
@@ -100,52 +115,54 @@ const faq: Array<[string, string]> = ru
     </div>
   </section>
 
-  <section class="content-section two-column">
+  <section class="content-section two-column" data-reveal>
     <div>
-      <div class="section-heading left"><span>{ru ? 'ПОЧЕМУ ЭТО НУЖНО' : 'WHY THIS IS NEEDED'}</span><h2>{ru ? 'Что исправляют сертификаты' : 'What certificates fix'}</h2></div>
+      <div class="section-heading left"><span>{ru ? 'Почему это нужно' : 'Why this is needed'}</span><h2>{ru ? 'Что исправляют сертификаты' : 'What certificates fix'}</h2></div>
       <p class="lead">{ru ? 'Некоторые зарубежные центры сертификации прекращают обслуживание российских сайтов. Из-за этого браузер может показать ошибку безопасности, хотя сам сайт работает.' : 'Some foreign certificate authorities may stop serving Russian websites. A browser can then show a certificate error even while the website itself is online.'}</p>
     </div>
     <div class="info-card"><strong>{ru ? 'Важно' : 'Important'}</strong><p>{ru ? 'Сертификаты помогают только при ошибках доверия. Они не обходят блокировки, не меняют DNS и не добавляют поддержку ГОСТ-шифрования обычному браузеру.' : 'Certificates only resolve trust errors. They do not bypass blocking, change DNS or add GOST cipher support to a standard browser.'}</p></div>
   </section>
 
-  <section class="content-section" id="cases">
-    <div class="section-heading"><span>{ru ? 'КОМУ ПОМОГАЕТ' : 'WHO IT HELPS'}</span><h2>{ru ? 'Если не открываются нужные сайты' : 'When the sites you need won’t open'}</h2><p>{ru ? 'Обычно это ошибка доверия сертификату, а не блокировка. Узнаёте свою ситуацию?' : 'Usually this is a certificate-trust error, not blocking. Recognise your case?'}</p></div>
+  <section class="content-section" id="cases" data-reveal>
+    <div class="section-heading"><span>{ru ? 'Кому помогает' : 'Who it helps'}</span><h2>{ru ? 'Если не открываются нужные сайты' : 'When the sites you need won’t open'}</h2><p>{ru ? 'Обычно это ошибка доверия сертификату, а не блокировка. Узнаёте свою ситуацию?' : 'Usually this is a certificate-trust error, not blocking. Recognise your case?'}</p></div>
     <div class="cases">
-      <div class="case-card"><h3>{ru ? 'Каким сайтам помогает' : 'Which sites it helps'}</h3><ul>{services.map((s) => <li>{s}</li>)}</ul></div>
-      <div class="case-card"><h3>{ru ? 'Как выглядит проблема' : 'What the error looks like'}</h3><ul class="errs">{errorSamples.map((e) => <li>{e}</li>)}</ul></div>
+      <div class="case-card"><h3>{ru ? 'Каким сайтам помогает' : 'Which sites it helps'}</h3><ul>{services.map((s) => <li><Icon name="mdi:check" /><span>{s}</span></li>)}</ul></div>
+      <div class="case-card"><h3>{ru ? 'Как выглядит проблема' : 'What the error looks like'}</h3><ul class="err-chips">{errorSamples.map((e) => <li>{e}</li>)}</ul></div>
     </div>
   </section>
 
-  <section class="content-section" id="faq">
+  <section class="content-section" id="faq" data-reveal>
     <div class="section-heading"><span>FAQ</span><h2>{ru ? 'Частые вопросы' : 'Common questions'}</h2></div>
     <div class="faq-list">
-      {faq.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+      {faq.map(([q, a]) => <details><summary>{q}<span class="chev" aria-hidden="true"><Icon name="mdi:chevron-down" /></span></summary><p>{a}</p></details>)}
     </div>
   </section>
 
-  <section class="content-section support" id="support">
-    <div class="section-heading"><span>{ru ? 'ПОДДЕРЖКА' : 'SUPPORT'}</span><h2>{ru ? 'Помогите проекту жить' : 'Keep the project alive'}</h2><p>{ru ? 'Сайт бесплатный и без рекламы. Его держат на плаву пожертвования и партнёры.' : 'The site is free and ad-free — donations and partners keep it running.'}</p></div>
+  <section class="content-section support" id="support" data-reveal>
+    <div class="section-heading"><span>{ru ? 'Поддержка' : 'Support'}</span><h2>{ru ? 'Помогите проекту жить' : 'Keep the project alive'}</h2><p>{ru ? 'Сайт бесплатный. Его поддерживают пожертвования и партнёры.' : 'The site is free. Donations and partners keep it running.'}</p></div>
     <div class="support-band">
       <article class="donate-card">
-        <div class="donate-head"><span class="donate-emoji" aria-hidden="true">☕</span><div><strong>{ru ? 'Поддержать рублём' : 'Donate'}</strong><small>{ru ? 'Любая сумма — по желанию' : 'Any amount, entirely optional'}</small></div></div>
-        <img class="donate-qr" src="/assets/donate-qr.png" width="148" height="148" alt={ru ? 'QR-код СБП для перевода в Ozon Банк' : 'SBP QR code for an Ozon Bank transfer'} />
-        <a class="donate-btn" href={donateUrl} target="_blank" rel="noopener noreferrer">{ru ? 'Перевести через Ozon Банк' : 'Pay via Ozon Bank'} <span aria-hidden="true">→</span></a>
-        <p class="donate-note">{ru ? 'Отсканируйте QR в приложении банка или откройте ссылку.' : 'Scan the QR in your bank app, or open the link.'}</p>
+        <div class="donate-head"><span class="donate-ic"><Icon name="mdi:hand-heart-outline" /></span><div><strong>{ru ? 'Поддержать проект' : 'Support the project'}</strong><small>{ru ? 'Любая сумма — по желанию' : 'Any amount, entirely optional'}</small></div></div>
+        <a class="donate-btn" href={donateUrl} target="_blank" rel="noopener noreferrer"><span>{ru ? 'Перевести через Ozon Банк' : 'Pay via Ozon Bank'}</span><Icon name="mdi:arrow-right" /></a>
+        <div class="qr-reveal" data-reveal-blur aria-label={ru ? 'Показать QR-код' : 'Show QR code'}>
+          <img class="donate-qr" src="/assets/donate-qr.png" width="360" height="360" alt={ru ? 'QR-код СБП для перевода в Ozon Банк' : 'SBP QR code for an Ozon Bank transfer'} />
+          <span class="reveal-hint"><Icon name="mdi:qrcode" />{ru ? 'Показать QR-код' : 'Show QR code'}</span>
+        </div>
+        <p class="donate-note">{ru ? 'Откройте ссылку или отсканируйте QR в приложении банка.' : 'Open the link, or scan the QR in your bank app.'}</p>
       </article>
       <div class="partner-rail">
-        <span class="rail-label">{ru ? 'ПАРТНЁРЫ' : 'PARTNERS'}</span>
+        <span class="rail-label">{ru ? 'Партнёры' : 'Partners'}</span>
         {partners.map((p) => (
-          <a class="banner" href={p.href} target="_blank" rel={p.rel}>
-            <img src={p.img} width="72" height="72" alt="" />
-            <div class="banner-body"><small>{p.label}</small><strong>{p.title}</strong><span class="banner-copy">{p.copy}</span></div>
-            <span class="banner-cta">{p.cta} <span aria-hidden="true">→</span></span>
+          <a class:list={['banner', p.variant === 'feature' && 'feature']} href={p.href} target="_blank" rel={p.rel}>
+            <img src={p.img} width="120" height="120" alt="" />
+            <div class="banner-body"><small>{p.label}</small><strong>{p.title}</strong><span class="banner-copy">{p.copy}</span><span class="banner-cta">{p.cta}<Icon name="mdi:arrow-right" /></span></div>
           </a>
         ))}
-        <details class="banner banner-become">
-          <summary><span class="become-plus" aria-hidden="true">+</span><span><strong>{ru ? 'Разместить свой баннер' : 'Place your banner'}</strong><small>{ru ? 'Свободное место для партнёра' : 'A free partner slot'}</small></span></summary>
+        <details class="become-link">
+          <summary>{ru ? 'Стать партнёром' : 'Become a partner'}<Icon name="mdi:chevron-down" /></summary>
           <div class="become-body">
-            <p>{ru ? 'Напишите — обсудим размещение и условия.' : 'Get in touch to discuss placement.'}</p>
-            <div class="copy-row"><code id="partner-email">wyrtensi@gmail.com</code><button id="copy-email" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
+            <p>{ru ? 'Напишите — обсудим размещение баннера.' : 'Get in touch about placing a banner.'}</p>
+            <div class="copy-row"><code id="partner-email" data-reveal-blur aria-label={ru ? 'Показать почту' : 'Reveal email'}>wyrtensi@gmail.com</code><button id="copy-email" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
           </div>
         </details>
       </div>
@@ -180,7 +197,7 @@ const faq: Array<[string, string]> = ru
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
       });
-      const sourceIcon = document.querySelector<HTMLButtonElement>(`[data-platform="${platform}"]`)?.querySelector('svg, .windows-glyph');
+      const sourceIcon = document.querySelector<HTMLButtonElement>(`[data-platform="${platform}"]`)?.querySelector('svg');
       if (selectedIcon && sourceIcon) selectedIcon.replaceChildren(sourceIcon.cloneNode(true));
       if (title) title.textContent = names[platform];
       if (copy) copy.textContent = copies[platform];
@@ -215,115 +232,166 @@ const faq: Array<[string, string]> = ru
 <style>
   /* Hero */
   .hero{max-width:900px;margin:40px auto 0;padding:0 24px;text-align:center}
-  .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-weight:750;font-size:13px;letter-spacing:.02em}
-  .eyebrow span{width:8px;height:8px;background:var(--green);border-radius:99px;box-shadow:0 0 0 5px color-mix(in srgb,var(--green) 14%,transparent)}
-  h1{font-size:clamp(38px,5.3vw,60px);line-height:1.04;letter-spacing:-.045em;margin:16px 0 14px}
+  .eyebrow{display:inline-block;color:var(--blue);font-weight:700;font-size:13px;letter-spacing:.01em}
+  h1{font-size:clamp(34px,5vw,56px);line-height:1.08;letter-spacing:-.03em;margin:14px 0 14px;font-weight:800}
   h1 span{color:var(--blue)}
-  .hero-copy{font-size:17px;color:var(--muted);margin:0 auto 24px;max-width:600px;line-height:1.55}
+  .hero-copy{font-size:17px;color:var(--muted);margin:0 auto 26px;max-width:600px;line-height:1.6}
   /* Installer card */
   .installer-card{width:min(100%,560px);margin:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:left}
   .detected{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px;margin:0 4px 14px}
   .status-dot{width:7px;height:7px;background:var(--green);border-radius:99px}
   .selected-platform{display:flex;align-items:center;gap:15px;padding:0 3px 16px}
-  .selected-icon{width:46px;height:46px;display:grid;place-items:center;background:#fff;border-radius:var(--radius-sm);padding:9px}
-  .selected-icon svg{width:100%;height:100%}
-  .selected-icon .windows-glyph,.windows-glyph{color:#087cd7;font-size:30px;font-weight:900;line-height:1}
+  .selected-icon{width:48px;height:48px;flex:none;display:grid;place-items:center;background:var(--soft);border-radius:var(--radius-sm);color:var(--blue)}
+  .selected-icon svg{width:26px;height:26px}
   .selected-platform strong{font-size:18px}
   .selected-platform p{margin:4px 0 0;color:var(--muted);font-size:13px}
-  .primary-action{height:54px;border-radius:var(--radius-sm);background:var(--blue);color:white;text-decoration:none;font-weight:760;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 6px 16px color-mix(in srgb,var(--blue) 22%,transparent);transition:transform .18s,background .18s,box-shadow .18s}
-  .primary-action:hover{transform:translateY(-1px);background:var(--blue2);box-shadow:0 9px 22px color-mix(in srgb,var(--blue) 28%,transparent)}
-  .microcopy{text-align:center;color:var(--muted);font-size:11px;margin:12px 0 0}
-  .microcopy span{color:var(--green);font-weight:900}
+  .primary-action{height:54px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;text-decoration:none;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 16px color-mix(in srgb,var(--blue) 20%,transparent);transition:transform .18s,background .18s,box-shadow .18s}
+  .primary-action .arrow{display:grid;place-items:center}
+  .primary-action svg{width:20px;height:20px}
+  .primary-action:hover{transform:translateY(-1px);background:var(--blue2);box-shadow:0 9px 22px color-mix(in srgb,var(--blue) 26%,transparent)}
+  .microcopy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:11px;margin:12px 0 0}
+  .microcopy svg{width:14px;height:14px;color:var(--green)}
   .command-panel{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
   .command-panel p{font-size:13px;color:var(--muted)}
   .command-row{display:flex;gap:8px;background:var(--soft);border-radius:var(--radius-sm);padding:8px}
   .command-row code{font-size:11px;line-height:1.5;word-break:break-all;max-height:92px;overflow:auto;flex:1}
-  .command-row button,.copy-row button{border:0;border-radius:var(--radius-xs);background:var(--text);color:var(--bg);font-weight:700;padding:0 12px;cursor:pointer}
+  .command-row button,.copy-row button{border:0;border-radius:var(--radius-xs);background:var(--blue);color:#fff;font-weight:650;padding:0 12px;cursor:pointer}
   /* Platform picker */
   .choose-label{margin:22px 0 12px;color:var(--muted);font-size:12px}
   .platforms{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-  .platforms button{min-width:90px;height:72px;background:transparent;border:1px solid transparent;border-radius:var(--radius-sm);color:var(--muted);display:grid;place-items:center;gap:5px;padding:8px;cursor:pointer;font-size:11px;transition:background .15s,border-color .15s,color .15s}
-  .platforms button svg,.platforms .windows-glyph{width:32px;height:32px;background:#fff;border-radius:var(--radius-xs);padding:6px;filter:grayscale(.15)}
-  .platforms button:hover,.platforms button.active{background:var(--surface);border-color:var(--line);color:var(--text);box-shadow:var(--shadow-sm)}
+  .platforms button{min-width:92px;height:74px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--muted);display:grid;place-items:center;gap:6px;padding:8px;cursor:pointer;font-size:11px;transition:border-color .15s,color .15s,box-shadow .15s}
+  .platforms button svg{width:24px;height:24px}
+  .platforms button:hover{color:var(--text);border-color:color-mix(in srgb,var(--blue) 35%,var(--line))}
+  .platforms button.active{color:var(--blue);border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset;background:color-mix(in srgb,var(--blue) 6%,var(--surface))}
   /* Trust strip */
-  .trust-strip{max-width:1050px;margin:44px auto 0;padding:22px 30px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .trust-strip{max-width:1050px;margin:44px auto 0;padding:20px 28px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
   .trust-strip>div{display:flex;align-items:center;gap:13px}
-  .trust-strip>div>span{width:38px;height:38px;border-radius:var(--radius-sm);background:color-mix(in srgb,var(--green) 12%,var(--surface));color:var(--green);display:grid;place-items:center;font-weight:900}
+  .trust-ic{width:40px;height:40px;flex:none;border-radius:var(--radius-sm);background:color-mix(in srgb,var(--blue) 9%,var(--surface));color:var(--blue);display:grid;place-items:center}
+  .trust-ic svg{width:21px;height:21px}
   .trust-strip p{margin:0}
   .trust-strip strong,.trust-strip small{display:block}
-  .trust-strip strong{font-size:13px}
-  .trust-strip small{font-size:11px;color:var(--muted);margin-top:4px}
+  .trust-strip strong{font-size:13.5px}
+  .trust-strip small{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
   /* Sections */
   .content-section{max-width:1050px;margin:64px auto 0;padding:0 24px}
   .section-heading{text-align:center;max-width:640px;margin:0 auto 28px}
   .section-heading.left{text-align:left;margin:0 0 18px}
-  .section-heading>span{font-size:11px;letter-spacing:.15em;color:var(--blue);font-weight:800}
-  .section-heading h2{font-size:clamp(28px,3.6vw,40px);letter-spacing:-.035em;margin:10px 0}
-  .section-heading p,.lead{color:var(--muted);line-height:1.65}
+  .section-heading>span{font-size:12px;letter-spacing:.04em;color:var(--blue);font-weight:700;text-transform:uppercase}
+  .section-heading h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.025em;margin:8px 0;font-weight:800}
+  .section-heading p,.lead{color:var(--muted);line-height:1.6}
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   .steps article,.info-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
-  .steps b{width:33px;height:33px;background:var(--soft);color:var(--blue);border-radius:var(--radius-xs);display:grid;place-items:center;font-weight:800}
+  .steps b{width:33px;height:33px;background:color-mix(in srgb,var(--blue) 10%,var(--surface));color:var(--blue);border-radius:var(--radius-xs);display:grid;place-items:center;font-weight:700}
   .steps h3{font-size:17px;margin:18px 0 8px}
   .steps p,.info-card p{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
   .two-column{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
-  .info-card{border-left:4px solid var(--blue)}
+  .info-card{border-left:3px solid var(--blue)}
   .info-card strong{display:block;margin-bottom:10px}
   /* Cases */
   .cases{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin:0 auto}
   .case-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
-  .case-card h3{font-size:16px;margin:0 0 14px}
-  .case-card ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-  .case-card li{position:relative;padding-left:24px;color:var(--muted);font-size:14px;line-height:1.4}
-  .case-card li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:900}
-  .case-card .errs li{padding-left:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--text)}
-  .case-card .errs li::before{content:'!';color:var(--blue);font-weight:900}
+  .case-card h3{font-size:16px;margin:0 0 15px}
+  .case-card ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+  .case-card li{display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;line-height:1.45}
+  .case-card li svg{width:18px;height:18px;flex:none;color:var(--green);margin-top:1px}
+  .err-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .err-chips li{display:block;background:var(--soft);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:7px 13px;font-size:12.5px;line-height:1.2}
   /* FAQ */
   .faq-list{max-width:780px;margin:auto;border-top:1px solid var(--line)}
   .faq-list details{border-bottom:1px solid var(--line);padding:16px 4px}
-  .faq-list summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
-  .faq-list summary::after{content:'+';color:var(--blue);font-size:20px;line-height:1}
-  .faq-list details[open] summary::after{content:'−'}
+  .faq-list summary{font-weight:650;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .faq-list summary::-webkit-details-marker{display:none}
+  .chev{color:var(--blue);display:grid;place-items:center;transition:transform .2s}
+  .chev svg{width:20px;height:20px}
+  .faq-list details[open] .chev{transform:rotate(180deg)}
   .faq-list p{color:var(--muted);line-height:1.6;font-size:14px;max-width:680px;margin:10px 0 0}
   /* Support / donate / partners */
-  .support-band{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:.85fr 1.15fr;gap:16px;align-items:start}
-  .donate-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:center}
-  .donate-head{display:flex;align-items:center;gap:12px;text-align:left;margin-bottom:16px}
-  .donate-emoji{width:42px;height:42px;flex:none;display:grid;place-items:center;font-size:22px;background:color-mix(in srgb,var(--blue) 10%,var(--surface));border-radius:var(--radius-sm)}
+  .support-band{max-width:1050px;margin:0 auto;display:grid;grid-template-columns:.9fr 1.1fr;gap:16px;align-items:start}
+  .donate-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .donate-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .donate-ic{width:42px;height:42px;flex:none;display:grid;place-items:center;color:var(--blue);background:color-mix(in srgb,var(--blue) 9%,var(--surface));border-radius:var(--radius-sm)}
+  .donate-ic svg{width:23px;height:23px}
   .donate-head strong{display:block;font-size:15px}
   .donate-head small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-  .donate-qr{width:148px;height:148px;border-radius:var(--radius-sm);display:block;margin:0 auto 14px;border:1px solid var(--line);background:#fff}
-  .donate-btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;text-decoration:none;font-weight:730;font-size:14px;transition:background .18s}
+  .donate-btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;text-decoration:none;font-weight:650;font-size:14px;transition:background .18s}
+  .donate-btn svg{width:19px;height:19px}
   .donate-btn:hover{background:var(--blue2)}
-  .donate-note{color:var(--muted);font-size:12px;line-height:1.5;margin:12px 0 0}
+  .qr-reveal{position:relative;margin:12px auto 0;max-width:320px;cursor:pointer;border-radius:var(--radius-sm);overflow:hidden}
+  .qr-reveal .donate-qr{display:block;width:100%;height:auto;background:#fff;padding:10px;border:1px solid var(--line);border-radius:var(--radius-sm);filter:blur(9px);transform:scale(1.03);transition:filter .35s ease,transform .35s ease}
+  .qr-reveal.shown .donate-qr{filter:none;transform:none}
+  .qr-reveal.shown{cursor:default}
+  .reveal-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:650;color:var(--text)}
+  .reveal-hint svg{width:18px;height:18px;color:var(--blue)}
+  .qr-reveal.shown .reveal-hint{opacity:0;pointer-events:none;transition:opacity .2s}
+  #partner-email{transition:filter .3s}
+  #partner-email[data-reveal-blur]:not(.shown){filter:blur(4px);cursor:pointer;user-select:none}
+  .donate-note{color:var(--muted);font-size:12px;line-height:1.5;margin:12px 0 0;text-align:center}
   .partner-rail{display:flex;flex-direction:column;gap:10px}
-  .rail-label{font-size:11px;letter-spacing:.14em;color:var(--muted);font-weight:800;padding:2px 2px 0}
-  .banner{display:flex;align-items:center;gap:15px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-decoration:none;color:inherit;transition:border-color .18s,box-shadow .18s,transform .18s}
-  a.banner:hover{border-color:color-mix(in srgb,var(--blue) 38%,var(--line));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
-  .banner img{width:64px;height:64px;flex:none;object-fit:cover;border-radius:var(--radius-sm)}
-  .banner-body{flex:1;min-width:0}
-  .banner-body small{color:var(--blue);font-size:10px;font-weight:800;letter-spacing:.12em}
-  .banner-body strong{display:block;font-size:16px;margin:3px 0 2px;letter-spacing:-.01em}
+  .rail-label{font-size:12px;letter-spacing:.03em;color:var(--muted);font-weight:700;text-transform:uppercase;padding:2px 2px 0}
+  .banner{display:flex;align-items:center;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-decoration:none;color:inherit;transition:border-color .18s,box-shadow .18s,transform .18s}
+  a.banner:hover{border-color:color-mix(in srgb,var(--blue) 34%,var(--line));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+  .banner>img{width:110px;height:110px;flex:none;object-fit:cover;border-radius:var(--radius-sm)}
+  .banner-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .banner-body small{color:var(--blue);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .banner-body strong{font-size:17px;letter-spacing:-.01em}
   .banner-copy{color:var(--muted);font-size:13px}
-  .banner-cta{flex:none;color:var(--blue);font-weight:730;font-size:13px;white-space:nowrap}
-  .banner-become{padding:0;flex:none;flex-direction:column;align-items:stretch;background:transparent;border-style:dashed}
-  .banner-become summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:15px;padding:14px 16px}
-  .banner-become summary::-webkit-details-marker{display:none}
-  .become-plus{width:42px;height:42px;flex:none;display:grid;place-items:center;font-size:24px;font-weight:400;color:var(--blue);background:color-mix(in srgb,var(--blue) 9%,var(--surface));border-radius:var(--radius-sm)}
-  .banner-become summary strong{display:block;font-size:15px}
-  .banner-become summary small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-  .become-body{padding:0 16px 16px 73px}
+  .banner-cta{display:inline-flex;align-items:center;gap:4px;color:var(--blue);font-weight:650;font-size:13px;margin-top:4px}
+  .banner-cta svg{width:16px;height:16px}
+  .banner.feature{flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden}
+  .banner.feature>img{width:100%;height:170px;border-radius:0}
+  .banner.feature .banner-body{padding:16px 18px}
+  .become-link{margin-top:2px}
+  .become-link summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13px;padding:6px 2px;transition:color .15s}
+  .become-link summary::-webkit-details-marker{display:none}
+  .become-link summary:hover{color:var(--blue)}
+  .become-link summary svg{width:16px;height:16px;transition:transform .2s}
+  .become-link[open] summary svg{transform:rotate(180deg)}
+  .become-body{margin-top:6px}
   .become-body p{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 10px}
   .copy-row{display:flex;gap:8px}
   .copy-row code{flex:1;background:var(--soft);border:1px solid var(--line);border-radius:var(--radius-xs);padding:9px 12px;color:var(--text);font-size:13px}
   .copy-row button{padding:0 14px;height:38px}
-  @media(max-width:780px){
-    .hero{margin-top:30px;padding:0 16px}h1{font-size:40px}.hero-copy{font-size:16px}
-    .platforms{display:grid;grid-template-columns:repeat(3,1fr)}.platforms button{min-width:0;width:100%}
-    .trust-strip{margin:36px 16px 0;padding:18px;grid-template-columns:1fr;gap:14px}
-    .content-section{margin-top:52px;padding:0 17px}
-    .steps,.two-column,.support-band,.cases{grid-template-columns:1fr}.two-column{gap:16px}
-    .section-heading{text-align:left}
-    .banner-cta{display:none}.become-body{padding-left:16px}
+  /* States & interactions */
+  .steps article,.case-card,.info-card{transition:border-color .18s,box-shadow .18s,transform .18s}
+  .steps article:hover,.case-card:hover{border-color:color-mix(in srgb,var(--blue) 24%,var(--line));box-shadow:var(--shadow-sm);transform:translateY(-2px)}
+  .info-card:hover{box-shadow:var(--shadow-sm)}
+  .steps b{transition:transform .2s}
+  .steps article:hover b{transform:scale(1.08)}
+  .err-chips li{transition:border-color .15s,color .15s,transform .15s}
+  .err-chips li:hover{border-color:color-mix(in srgb,var(--blue) 32%,var(--line));color:var(--blue);transform:translateY(-1px)}
+  .case-card li svg{transition:transform .2s}
+  .case-card li:hover svg{transform:scale(1.16)}
+  .faq-list details{transition:background .18s}
+  .faq-list summary{transition:color .15s}
+  .faq-list summary:hover{color:var(--blue)}
+  .faq-list details[open]{background:color-mix(in srgb,var(--blue) 4%,transparent);border-radius:var(--radius-sm)}
+  .primary-action:active,.donate-btn:active,.command-row button:active,.copy-row button:active,.qr-toggle summary:active{transform:translateY(1px)}
+  .language:active,.icon-button:active,.platforms button:active{transform:scale(.95)}
+  .arrow svg,.banner-cta svg{transition:transform .2s}
+  .primary-action:hover .arrow svg,.banner:hover .banner-cta svg{transform:translateX(3px)}
+  .donate-btn svg{transition:transform .2s}
+  .donate-btn:hover svg{transform:translateX(3px)}
+  .selected-icon{transition:transform .2s}
+  .installer-card:hover .selected-icon{transform:translateY(-1px)}
+  @media (prefers-reduced-motion: reduce){
+    .steps article:hover,.case-card:hover,.err-chips li:hover,.banner:hover{transform:none}
   }
-  @media(max-width:380px){h1{font-size:36px}.installer-card{padding:14px}.primary-action{font-size:14px}.platforms{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:820px){
+    .support-band{grid-template-columns:1fr}
+  }
+  @media(max-width:780px){
+    .hero{margin-top:28px;padding:0 16px}h1{font-size:clamp(30px,8vw,40px)}.hero-copy{font-size:15.5px}
+    .platforms{display:grid;grid-template-columns:repeat(3,1fr)}.platforms button{min-width:0;width:100%}
+    .trust-strip{margin:34px 16px 0;padding:18px;grid-template-columns:1fr;gap:16px}
+    .content-section{margin-top:50px;padding:0 18px}
+    .steps,.two-column,.cases{grid-template-columns:1fr}.two-column{gap:16px}
+    .section-heading{text-align:left}.section-heading.left{margin-bottom:14px}
+    .banner>img{width:88px;height:88px}
+    .become-body{padding-left:16px}
+  }
+  @media(max-width:400px){
+    h1{font-size:28px}.installer-card{padding:14px}.primary-action{font-size:14px}
+    .platforms{grid-template-columns:repeat(2,1fr)}
+    .banner{gap:14px}.banner>img{width:76px;height:76px}.banner-body strong{font-size:16px}
+  }
 </style>
