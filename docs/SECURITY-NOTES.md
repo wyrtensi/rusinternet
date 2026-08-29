@@ -13,7 +13,15 @@
 - iOS использует профиль, но оставляет системные подтверждения пользователю.
 - Android оставляет импорт пользователю, потому что ОС запрещает silent CA install.
 - В Git release-файлы хранятся как байтовые артефакты без EOL-преобразований.
-- GitHub Actions имеет только `contents: read`, immutable SHA для используемых actions и fail-closed проверку удалённого пути.
+- GitHub Actions использует `contents: read`, отдельные `pages: write`/`id-token: write` для Pages OIDC и immutable SHA для используемых actions; долгоживущие deploy-пароли workflow не нужны.
+
+## Транспорт и заголовки production
+
+- Для GitHub Pages включён **Enforce HTTPS**; сертификат охватывает `rusinternet.com` и `www.rusinternet.com`.
+- HTTP не должен использоваться для раздачи установщиков или контрольных сумм: незашифрованную страницу и сам установщик можно подменить одновременно.
+- GitHub Pages не исполняет `public/.htaccess`. Файл остаётся конфигурацией Apache-совместимого зеркала, но его CSP, Permissions-Policy и MIME-настройки не действуют на текущем production.
+- Произвольные HSTS/CSP/Permissions-Policy на GitHub Pages недоступны. Для них потребуется управляемый CDN/proxy или другой hosting.
+- На production `.cer` отдаётся как `application/pkix-cert`, shell-скрипты — как `application/x-sh`, manifest — как JSON. `.mobileconfig` отдаётся как `application/octet-stream`, поэтому его установка должна быть подтверждена на реальном iOS/iPadOS.
 
 ## Результат внешнего ревью
 

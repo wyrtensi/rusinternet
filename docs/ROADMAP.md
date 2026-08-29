@@ -1,6 +1,6 @@
 # RusInternet roadmap
 
-Актуально на 28 августа 2026 года.
+Актуально на 30 августа 2026 года.
 
 ## Обновление 28 августа 2026 (дизайн + ревью скриптов)
 
@@ -15,7 +15,9 @@
 
 - [x] Деплой на GitHub Pages из `main`: workflow тестирует, собирает и публикует `dist/`.
 - [x] Собственный домен через `public/CNAME`; HTTPS выпускается автоматически (Let's Encrypt) — сайт с корневыми сертификатами обязан отдаваться только по HTTPS.
-- [ ] После первой публикации: включить Enforce HTTPS, проверить редиректы и MIME `.cer`/`.mobileconfig`.
+- [x] GitHub Pages Enforce HTTPS включён; сертификат для `rusinternet.com` и `www.rusinternet.com` одобрен, HTTP-редиректы активированы.
+- [x] На production проверена доступность `.cer`, `.cmd`, `.sh`, `manifest.json`, RU/EN-страниц и внутренних ссылок.
+- [ ] Проверить установку `.mobileconfig` на реальном iPhone/iPad: GitHub Pages отдаёт файл как `application/octet-stream`, а не `application/x-apple-aspen-config`.
 - [ ] Подключить Яндекс.Вебмастер, Google Search Console и Bing; отправить sitemap.
 
 ## Готово
@@ -31,17 +33,18 @@
 - [x] Android: честный guided flow; автоматическая установка CA не обещается из-за ограничения Android 11+.
 - [x] FAQ, ограничения, QR-пожертвование, партнёр wyrtensi, раскрываемый контакт.
 - [x] SEO-база: canonical, RU/EN hreflang только для настоящих переводов, sitemap, robots, JSON-LD, Open Graph.
-- [x] Security headers, `security.txt`, запрет листинга каталогов.
-- [x] 33 автоматические проверки: платформы, allowlist, сертификаты, установщики, manifest и workflow.
+- [x] `security.txt`, конфигурация MIME/security headers для Apache-совместимого зеркала и отсутствие листинга каталогов на production.
+- [x] 36 автоматических проверок: платформы, allowlist, сертификаты, установщики, manifest и workflow.
 - [x] Визуальная проверка desktop/mobile, двух тем и интерактивных блоков.
 - [x] GitHub Actions: build/test и публикация проверенной сборки из `main` на GitHub Pages.
 - [x] GitHub Actions verification-run на Ubuntu: `npm ci`, тесты и production-сборка проходят.
 
 ## Следующий релиз — go-live
 
-- [ ] Включить GitHub Pages (source: GitHub Actions) и задать собственный домен из `public/CNAME`.
-- [ ] Настроить DNS домена на GitHub Pages (A/AAAA для apex, `CNAME` для `www`) и дождаться выпуска сертификата.
-- [ ] Включить Enforce HTTPS; проверить редиректы, `www`, а также отдачу `.cer`, `.mobileconfig`, `.cmd`, `.sh` и `manifest.json`.
+- [x] Включить GitHub Pages (source: GitHub Actions) и задать собственный домен из `public/CNAME`.
+- [x] Настроить DNS домена на GitHub Pages (A/AAAA для apex, `CNAME` для `www`) и дождаться выпуска сертификата.
+- [x] Включить Enforce HTTPS; проверить редиректы, `www`, а также отдачу `.cer`, `.cmd`, `.sh` и `manifest.json`.
+- [ ] Проверить iOS-профиль на реальном устройстве; при проблеме с MIME перенести только этот артефакт на HTTPS-хостинг с управляемым `Content-Type`.
 - [ ] Провести реальные smoke-тесты на Windows 10/11, актуальном macOS, Ubuntu/Debian/Fedora, Android 11+ и iOS/iPadOS.
 
 ## После запуска
@@ -50,6 +53,8 @@
 - [ ] Добавить английские версии OS-инструкций либо не показывать для них hreflang до готовности.
 - [ ] Подключить Google Search Console, Bing Webmaster Tools и Яндекс Вебмастер; добавить проверочные записи через DNS.
 - [ ] Отправить sitemap во все подключённые поисковые системы и отслеживать индексирование без скрытого текста и doorway-страниц.
+- [ ] Создать social preview 1200×630 и добавить `og:image`/`twitter:image`; текущая OpenGraph-разметка корректна, но не содержит изображения.
+- [ ] Если обязательны HSTS/CSP/Permissions-Policy, поставить перед GitHub Pages управляемый CDN/proxy либо перенести hosting: GitHub Pages игнорирует `.htaccess` и не позволяет задавать произвольные response headers.
 - [ ] Настроить еженедельную проверку официальных архивов Госуслуг. При изменении сертификатов создавать issue/PR, но никогда не публиковать новый root автоматически.
 - [ ] Добавить воспроизводимую подпись Windows-установщика или перейти на подписанный MSI/PowerShell package при появлении доверенного code-signing сертификата.
 - [ ] Рассмотреть подписанный `.pkg` для macOS после реального тестирования и получения Developer ID.

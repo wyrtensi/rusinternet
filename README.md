@@ -73,7 +73,9 @@ npm run build    # astro check + сборка → dist/
 
 ## Публикация
 
-Сайт разворачивается на **GitHub Pages** из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и публикует `dist/`. Собственный домен задаётся файлом [`public/CNAME`](public/CNAME); HTTPS выпускается автоматически (Let's Encrypt). HTTP оставлен доступным намеренно — чтобы страница открывалась даже у пользователей со сломанным TLS.
+Сайт разворачивается на **GitHub Pages** из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и публикует `dist/`. Собственный домен задаётся файлом [`public/CNAME`](public/CNAME); сертификат HTTPS выпускается автоматически, а режим **Enforce HTTPS** включён. HTTP перенаправляется на HTTPS: установщики и контрольные суммы нельзя безопасно раздавать по незащищённому соединению.
+
+Файл [`public/.htaccess`](public/.htaccess) хранит MIME-типы и защитные заголовки для Apache-совместимого зеркала, но GitHub Pages его не исполняет. Поэтому специальные заголовки вроде HSTS/CSP и MIME `application/x-apple-aspen-config` потребуют прокси/CDN или другого хостинга, если они станут обязательными.
 
 ## Структура проекта
 
