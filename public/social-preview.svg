@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Российские сертификаты — RusInternet</title>
+  <desc id="description">Безопасная установка российских доверенных сертификатов для популярных операционных систем.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f8faff"/>
+      <stop offset="1" stop-color="#eef3fb"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#5f83e6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#1d4ed8" flood-opacity=".12"/>
+    </filter>
+    <clipPath id="small-globe"><circle cx="32" cy="32" r="24"/></clipPath>
+    <clipPath id="preview-globe"><circle cx="920" cy="315" r="132"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1120" cy="42" r="230" fill="#dfe9ff" opacity=".55"/>
+  <circle cx="58" cy="618" r="190" fill="#e7efff" opacity=".72"/>
+  <rect x="48" y="44" width="1104" height="542" rx="42" fill="#fff" stroke="#dfe6f1" stroke-width="2" filter="url(#shadow)"/>
+
+  <g transform="translate(96 82)">
+    <circle cx="32" cy="32" r="29" fill="#edf3ff"/>
+    <g clip-path="url(#small-globe)">
+      <path fill="#fff" d="M8 8h48v16H8z"/>
+      <path fill="#1d4ed8" d="M8 24h48v16H8z"/>
+      <path fill="#dc2626" d="M8 40h48v16H8z"/>
+      <g fill="none" stroke="#172554" stroke-opacity=".28" stroke-width="1.25">
+        <ellipse cx="32" cy="32" rx="11" ry="24"/>
+        <path d="M32 8v48M9.5 23.5c12.5 4.2 32.5 4.2 45 0M8 32h48M9.5 40.5c12.5-4.2 32.5-4.2 45 0"/>
+      </g>
+    </g>
+    <circle cx="32" cy="32" r="24" fill="none" stroke="#315ebd" stroke-width="2"/>
+  </g>
+  <text x="176" y="121" fill="#101828" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="750">Доступ в российский интернет</text>
+
+  <text x="96" y="252" fill="#101828" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-2">Российские</text>
+  <text x="96" y="326" fill="url(#accent)" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-2">сертификаты</text>
+  <text x="100" y="388" fill="#5f6b7f" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="450">Безопасная установка для Windows, macOS,</text>
+  <text x="100" y="426" fill="#5f6b7f" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="450">Linux, Android и iOS</text>
+
+  <g transform="translate(96 494)">
+    <rect width="248" height="52" rx="16" fill="#eef3ff" stroke="#d9e4fb"/>
+    <circle cx="27" cy="26" r="7" fill="#12a463"/>
+    <text x="47" y="34" fill="#1d4ed8" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">rusinternet.com</text>
+  </g>
+
+  <circle cx="920" cy="315" r="157" fill="#edf3ff"/>
+  <g clip-path="url(#preview-globe)">
+    <path fill="#fff" d="M788 183h264v88H788z"/>
+    <path fill="#1d4ed8" d="M788 271h264v88H788z"/>
+    <path fill="#dc2626" d="M788 359h264v88H788z"/>
+    <g fill="none" stroke="#172554" stroke-opacity=".27" stroke-width="6">
+      <ellipse cx="920" cy="315" rx="61" ry="132"/>
+      <path d="M920 183v264M796 268c69 23 179 23 248 0M788 315h264M796 362c69-23 179-23 248 0"/>
+    </g>
+  </g>
+  <circle cx="920" cy="315" r="132" fill="none" stroke="#fff" stroke-opacity=".78" stroke-width="5"/>
+  <circle cx="920" cy="315" r="145" fill="none" stroke="#b9c9e8" stroke-width="4"/>
+  <circle cx="920" cy="315" r="132" fill="none" stroke="#315ebd" stroke-width="9"/>
+  <g transform="translate(1000 410)">
+    <circle cx="40" cy="40" r="40" fill="#fff" stroke="#dfe6f1" stroke-width="2"/>
+    <circle cx="40" cy="40" r="29" fill="#e7f8ef"/>
+    <path d="m25 40 10 10 21-22" fill="none" stroke="#12a463" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
