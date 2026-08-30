@@ -54,7 +54,7 @@
 - [ ] Подключить Google Search Console, Bing Webmaster Tools и Яндекс Вебмастер; добавить проверочные записи через DNS.
 - [ ] Отправить sitemap во все подключённые поисковые системы и отслеживать индексирование без скрытого текста и doorway-страниц.
 - [x] Создать светлый social preview 1200×630, единый глобус с триколором для логотипа и favicon, добавить `og:image`/`twitter:image`.
-- [ ] Если обязательны HSTS/CSP/Permissions-Policy, перенести production на уже подключённый Beget FreeHosting и после выпуска HTTPS включить заголовки через `.htaccess` либо поставить перед GitHub Pages управляемый proxy/CDN. До миграции GitHub Pages игнорирует `.htaccess` и не позволяет задавать произвольные response headers.
+- [ ] Сохранить production на GitHub Pages: Beget FreeHosting не даёт проекту рабочего HTTPS/Let’s Encrypt. Если станут обязательны HSTS/CSP/Permissions-Policy, поставить перед Pages управляемый proxy/CDN с международно доверенным сертификатом либо перейти на платный hosting. GitHub Pages игнорирует `.htaccess` и не позволяет задавать произвольные response headers.
 - [ ] Настроить еженедельную проверку официальных архивов Госуслуг. При изменении сертификатов создавать issue/PR, но никогда не публиковать новый root автоматически.
 - [ ] Добавить воспроизводимую подпись Windows-установщика или перейти на подписанный MSI/PowerShell package при появлении доверенного code-signing сертификата.
 - [ ] Рассмотреть подписанный `.pkg` для macOS после реального тестирования и получения Developer ID.
