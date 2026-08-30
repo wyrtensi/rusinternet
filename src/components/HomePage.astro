@@ -3,6 +3,7 @@ import { Icon } from 'astro-icon/components';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { INSTALLER_HASHES } from '../lib/release';
 import { OS_ICONS } from '../lib/os-icons';
+import { sha256Source } from '../lib/csp';
 
 interface Props { locale: 'ru' | 'en' }
 const { locale } = Astro.props;
@@ -86,8 +87,28 @@ const faq: Array<[string, string]> = ru
       ['Can I remove the certificates without weakening security?', 'Yes, you can remove them at any time via your system certificate manager (on iPhone, by deleting the profile). Adding this root does not weaken checks for other sites — they are still validated by their own certificate authorities. After removal, only Russian sites using the НУЦ Минцифры certificates stop opening.'],
       ['How do I avoid fake certificates?', 'A real certificate is not a program: it installs nothing and never asks for your Gosuslugi or bank password. Scammers build fake sites with an “install a trusted certificate” banner and push malware instead. Take the files only from official sources — Gosuslugi, gu-st.ru or this page, where they are verified by checksums.']
     ];
+const websiteStructuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'RusInternet',
+  url: 'https://rusinternet.com/',
+  description
+});
+const faqStructuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer }
+  }))
+});
+const structuredDataHashes = [
+  sha256Source(websiteStructuredData),
+  sha256Source(faqStructuredData)
+];
 ---
-<BaseLayout {title} {description} {locale} canonical={ru ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'}>
+<BaseLayout {title} {description} {locale} canonical={ru ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'} scriptHashes={structuredDataHashes}>
   <section class="hero">
     <div class="eyebrow">{ru ? 'Госуслуги · банки · соцсети · маркетплейсы' : 'Gov · banks · social · marketplaces'}</div>
     <h1>{ru ? 'Сайт пишет «не защищено»?' : 'Site says “not secure”?'}<br/><span>{ru ? 'Установите российские сертификаты' : 'Install the Russian certificates'}</span></h1>
@@ -184,11 +205,12 @@ const faq: Array<[string, string]> = ru
     </div>
   </section>
 
-  <script is:inline type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'WebSite', name:'RusInternet', url:'https://rusinternet.com/', description })} />
-  <script is:inline type="application/ld+json" set:html={JSON.stringify({ '@context':'https://schema.org', '@type':'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type':'Question', name:q, acceptedAnswer:{ '@type':'Answer', text:a } })) })} />
+  <script is:inline type="application/ld+json" set:html={websiteStructuredData} />
+  <script is:inline type="application/ld+json" set:html={faqStructuredData} />
 
   <script>
     import { detectPlatform, getInstallAction, type Platform } from '../lib/platform';
+    import { copyTextAndSetLabel } from '../lib/clipboard';
     const card = document.querySelector<HTMLElement>('.installer-card');
     const buttons = document.querySelectorAll<HTMLButtonElement>('[data-platform]');
     const action = document.querySelector<HTMLAnchorElement>('#primary-action');
@@ -234,12 +256,12 @@ const faq: Array<[string, string]> = ru
       if (action.dataset.kind === 'command') { event.preventDefault(); commandPanel?.removeAttribute('hidden'); commandPanel?.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
     });
     document.querySelector('#copy-command')?.addEventListener('click', async (event) => {
-      await navigator.clipboard.writeText(commandCode?.textContent ?? '');
-      (event.currentTarget as HTMLButtonElement).textContent = locale === 'ru' ? 'Скопировано' : 'Copied';
+      const button = event.currentTarget as HTMLButtonElement;
+      await copyTextAndSetLabel(commandCode?.textContent ?? '', button, locale === 'ru' ? 'Скопировано' : 'Copied', navigator.clipboard);
     });
     document.querySelector('#copy-email')?.addEventListener('click', async (event) => {
-      await navigator.clipboard.writeText('wyrtensi@gmail.com');
-      (event.currentTarget as HTMLButtonElement).textContent = locale === 'ru' ? 'Скопировано' : 'Copied';
+      const button = event.currentTarget as HTMLButtonElement;
+      await copyTextAndSetLabel('wyrtensi@gmail.com', button, locale === 'ru' ? 'Скопировано' : 'Copied', navigator.clipboard);
     });
   </script>
 </BaseLayout>

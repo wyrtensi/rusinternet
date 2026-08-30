@@ -19,8 +19,9 @@
 
 - Для GitHub Pages включён **Enforce HTTPS**; сертификат охватывает `rusinternet.com` и `www.rusinternet.com`.
 - HTTP не должен использоваться для раздачи установщиков или контрольных сумм: незашифрованную страницу и сам установщик можно подменить одновременно.
-- GitHub Pages не исполняет `public/.htaccess`. Файл остаётся конфигурацией Apache-совместимого зеркала, но его CSP, Permissions-Policy и MIME-настройки не действуют на текущем production.
-- Произвольные HSTS/CSP/Permissions-Policy на GitHub Pages недоступны. Для них потребуется управляемый CDN/proxy или другой hosting.
+- Строгая CSP доставляется ранним HTML `<meta>` и действует на текущем production: `default-src 'none'`, исполняемые скрипты и стили разрешены только с того же origin, inline event/style-атрибуты запрещены, JSON-LD разрешён только по точным SHA-256-хэшам. `npm run build` проверяет итоговые страницы на регрессии политики.
+- GitHub Pages не исполняет `public/.htaccess`. Файл остаётся конфигурацией Apache-совместимого зеркала, но его response headers и MIME-настройки не действуют на текущем production.
+- Произвольные HSTS и Permissions-Policy недоступны. Meta CSP также не поддерживает `frame-ancestors`, reporting и другие header-only-возможности; для них потребуется управляемый CDN/proxy или другой hosting.
 - На production `.cer` отдаётся как `application/pkix-cert`, shell-скрипты — как `application/x-sh`, manifest — как JSON. `.mobileconfig` отдаётся как `application/octet-stream`, поэтому его установка должна быть подтверждена на реальном iOS/iPadOS.
 
 ## Результат внешнего ревью

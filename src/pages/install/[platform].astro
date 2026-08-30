@@ -86,9 +86,12 @@ const certGroups = [
     <p class="footnote">Набор сверен с официальной публикацией Госуслуг 28 августа 2026 года. Корневые сертификаты действуют до 2032 и 2040 годов; набор периодически обновляется в проекте.</p>
   </article>
   <script>
+    import { copyTextAndSetLabel } from '../../lib/clipboard';
+
     document.querySelector('#guide-copy')?.addEventListener('click', async (event) => {
-      await navigator.clipboard.writeText(document.querySelector('#guide-command')?.textContent ?? '');
-      (event.currentTarget as HTMLButtonElement).textContent = 'Скопировано';
+      const button = event.currentTarget as HTMLButtonElement;
+      const command = document.querySelector('#guide-command')?.textContent ?? '';
+      await copyTextAndSetLabel(command, button, 'Скопировано', navigator.clipboard);
     });
   </script>
 </BaseLayout>

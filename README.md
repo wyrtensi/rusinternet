@@ -66,7 +66,7 @@
 npm ci
 npm test        # платформы, сертификаты, установщики, manifest, деплой
 npm run dev      # http://localhost:4321
-npm run build    # astro check + сборка → dist/
+npm run build    # astro check + сборка + проверка CSP → dist/
 ```
 
 Технологии: [Astro](https://astro.build) (статическая генерация), TypeScript, [Vitest](https://vitest.dev), [astro-icon](https://github.com/natemoo-re/astro-icon).
@@ -75,7 +75,9 @@ npm run build    # astro check + сборка → dist/
 
 Сайт разворачивается на **GitHub Pages** из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и публикует `dist/`. Собственный домен задаётся файлом [`public/CNAME`](public/CNAME); сертификат HTTPS выпускается автоматически, а режим **Enforce HTTPS** включён. HTTP перенаправляется на HTTPS: установщики и контрольные суммы нельзя безопасно раздавать по незащищённому соединению.
 
-Файл [`public/.htaccess`](public/.htaccess) хранит MIME-типы и защитные заголовки для Apache-совместимого зеркала, но GitHub Pages его не исполняет. Поэтому специальные заголовки вроде HSTS/CSP и MIME `application/x-apple-aspen-config` потребуют прокси/CDN или другого хостинга, если они станут обязательными.
+Строгая CSP действует на GitHub Pages через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все семь HTML-страниц и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
+
+Файл [`public/.htaccess`](public/.htaccess) хранит MIME-типы и защитные **response headers** для Apache-совместимого зеркала, но GitHub Pages его не исполняет. Поэтому HSTS, Permissions-Policy, header-only-директивы CSP (`frame-ancestors`, reporting) и MIME `application/x-apple-aspen-config` потребуют прокси/CDN или другого хостинга, если они станут обязательными.
 
 ## Структура проекта
 

@@ -1,25 +1,31 @@
 ---
+import { buildContentSecurityPolicy } from '../lib/csp';
+
 interface Props {
   title: string;
   description: string;
   locale?: 'ru' | 'en';
   canonical?: string;
+  scriptHashes?: string[];
 }
 
 const {
   title,
   description,
   locale = 'ru',
-  canonical = locale === 'ru' ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/'
+  canonical = locale === 'ru' ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/',
+  scriptHashes = []
 } = Astro.props;
 const homeHref = locale === 'ru' ? '/' : '/en/';
 const brand = locale === 'ru' ? 'Доступ в российский интернет' : 'Access to the Russian internet';
 const hasLanguageAlternate = canonical === 'https://rusinternet.com/' || canonical === 'https://rusinternet.com/en/';
+const contentSecurityPolicy = buildContentSecurityPolicy(scriptHashes);
 ---
 <!doctype html>
 <html lang={locale}>
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -46,13 +52,7 @@ const hasLanguageAlternate = canonical === 'https://rusinternet.com/' || canonic
     <meta name="twitter:image" content="https://rusinternet.com/social-preview.png" />
     <meta name="twitter:image:alt" content={locale === 'ru' ? 'Российские сертификаты — безопасная установка' : 'Russian certificates — safe installation'} />
     <title>{title}</title>
-    <script is:inline>
-      (() => {
-        document.documentElement.classList.add('js');
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
-      })();
-    </script>
+    <script is:inline src="/scripts/theme-init.js"></script>
   </head>
   <body>
     <header class="site-header">
@@ -93,40 +93,7 @@ const hasLanguageAlternate = canonical === 'https://rusinternet.com/' || canonic
       </div>
       <p class="footer-copy">© 2026 · rusinternet.com — {locale === 'ru' ? 'открытый некоммерческий проект' : 'an open, non-commercial project'}</p>
     </footer>
-    <script>
-      const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
-      button?.addEventListener('click', () => {
-        const current = document.documentElement.dataset.theme;
-        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const next = current ? (current === 'dark' ? 'light' : 'dark') : (systemDark ? 'light' : 'dark');
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem('theme', next);
-      });
-
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const targets = document.querySelectorAll('[data-reveal]');
-      if (reduce || !('IntersectionObserver' in window)) {
-        targets.forEach((el) => el.classList.add('in'));
-      } else {
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
-          });
-        }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
-        targets.forEach((el) => io.observe(el));
-      }
-
-      document.querySelectorAll('[data-reveal-blur]').forEach((el) => {
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
-        const show = () => el.classList.add('shown');
-        el.addEventListener('click', show);
-        el.addEventListener('keydown', (event) => {
-          const key = (event as KeyboardEvent).key;
-          if (key === 'Enter' || key === ' ') { event.preventDefault(); show(); }
-        });
-      });
-    </script>
+    <script is:inline src="/scripts/site.js" defer></script>
   </body>
 </html>
 

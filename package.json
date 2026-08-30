@@ -8,7 +8,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "astro check",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && node scripts/verify-built-csp.mjs",
     "preview": "astro preview",
     "certs:verify": "vitest run tests/manifest.test.ts"
   },
