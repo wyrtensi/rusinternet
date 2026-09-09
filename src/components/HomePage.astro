@@ -143,6 +143,7 @@ const structuredDataHashes = [
     <div class="platforms" role="group" aria-label={ru ? 'Выбор операционной системы' : 'Operating system selection'}>
       {platforms.map(([id, label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}><span class="os-ic" set:html={OS_ICONS[id]}></span><span>{label}</span></button>)}
     </div>
+
   </section>
 
   <section class="trust-strip" id="safety" data-reveal>
@@ -150,6 +151,15 @@ const structuredDataHashes = [
   </section>
 
   <p class="browsers" data-reveal><span class="browsers-plus"><Icon name="mdi:check" /></span>{ru ? 'Устанавливается один раз — и сайты открываются в вашем любимом браузере: Chrome, Firefox, Edge, Opera, Vivaldi, Brave и других.' : 'You install it once — and sites open in your favourite browser: Chrome, Firefox, Edge, Opera, Vivaldi, Brave and others.'}</p>
+
+  <a class="wy-ad" href="https://github.com/wyrtensi/wystore" target="_blank" rel="sponsored noopener noreferrer" data-reveal>
+    <img src={ru ? '/assets/wystore-banner.png' : '/assets/wystore-banner-en.png'} width="1280" height="440" alt="Wy Store" loading="lazy" />
+    <span class="wy-ad-body">
+      <strong>{ru ? 'Попробуйте Wy Store' : 'Try Wy Store'}</strong>
+      <span class="wy-ad-tag">{ru ? 'Альтернатива RuStore без слежки и рекламы' : 'A RuStore alternative without tracking or ads'}</span>
+      <span>{ru ? 'Открытый исходный код: ' : 'Open source: '}<b>github.com/wyrtensi/wystore</b></span>
+    </span>
+  </a>
 
   <section class="content-section" id="how" data-reveal>
     <div class="section-heading"><span>{ru ? 'Как это работает' : 'How it works'}</span><h2>{ru ? 'Три понятных шага' : 'Three clear steps'}</h2><p>{ru ? 'Сайт подбирает безопасный способ для вашей системы. Сертификаты не нужно скачивать по одному.' : 'The site chooses a safe method for your system. You do not download certificates one by one.'}</p></div>
@@ -276,6 +286,16 @@ const structuredDataHashes = [
 </BaseLayout>
 
 <style>
+  /* Sibling project, advertised once under the hero */
+  .wy-ad{display:block;max-width:1050px;margin:56px auto 0;padding:0 24px;text-decoration:none;color:inherit}
+  .wy-ad img{display:block;width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--line)}
+  .wy-ad-body{display:block;margin-top:14px;text-align:center}
+  .wy-ad-body strong{display:block;font-size:19px;letter-spacing:-.01em}
+  .wy-ad-body span{display:block;margin:5px auto 0;max-width:620px;color:var(--muted);font-size:13.5px;line-height:1.6}
+  .wy-ad-body .wy-ad-tag{color:var(--text);font-size:14.5px;margin-top:6px}
+  .wy-ad-body b{font-weight:600;text-decoration:underline;text-underline-offset:2px;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent)}
+  .wy-ad:hover .wy-ad-body b{color:var(--blue);text-decoration-color:var(--blue)}
+  .wy-ad:hover img{border-color:color-mix(in srgb,var(--blue) 34%,var(--line))}
   /* Hero */
   .hero{max-width:900px;margin:40px auto 0;padding:0 24px;text-align:center}
   .eyebrow{display:inline-block;color:var(--blue);font-weight:700;font-size:13px;letter-spacing:.01em}
