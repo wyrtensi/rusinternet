@@ -32,17 +32,3 @@ if (reducedMotion || !('IntersectionObserver' in window)) {
 
   revealTargets.forEach((element) => observer.observe(element));
 }
-
-document.querySelectorAll('[data-reveal-blur]').forEach((element) => {
-  element.setAttribute('role', 'button');
-  element.setAttribute('tabindex', '0');
-  const show = () => element.classList.add('shown');
-
-  element.addEventListener('click', show);
-  element.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      show();
-    }
-  });
-});
