@@ -1,0 +1,12 @@
+---
+import GuidePage from '../../../components/GuidePage.astro';
+import { PLATFORMS, type Platform } from '../../../lib/platform';
+
+export function getStaticPaths() {
+  return PLATFORMS.map((platform) => ({ params: { platform }, props: { platform } }));
+}
+
+interface Props { platform: Platform }
+const { platform } = Astro.props;
+---
+<GuidePage {platform} locale="en" />

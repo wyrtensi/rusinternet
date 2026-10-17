@@ -1,4 +1,5 @@
-export type Platform = 'windows' | 'android' | 'ios' | 'macos' | 'linux';
+export const PLATFORMS = ['windows', 'macos', 'android', 'ios', 'linux'] as const;
+export type Platform = (typeof PLATFORMS)[number];
 export type Locale = 'ru' | 'en';
 
 export type InstallerHashes = {
@@ -54,7 +55,7 @@ export function getInstallAction(
   }
 
   if (platform === 'android') {
-    return { kind: 'guide', label: labels.android, href: '/install/android/' };
+    return { kind: 'guide', label: labels.android, href: locale === 'ru' ? '/install/android/' : '/en/install/android/' };
   }
 
   const url = `https://rusinternet.com/downloads/install-${platform}.sh`;

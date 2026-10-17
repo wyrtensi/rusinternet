@@ -7,18 +7,24 @@ interface Props {
   locale?: 'ru' | 'en';
   canonical?: string;
   scriptHashes?: string[];
+  // Paths of the same page in both languages; hreflang is emitted only for real translations.
+  alternates?: { ru: string; en: string };
+  noindex?: boolean;
 }
 
+const site = 'https://rusinternet.com';
 const {
   title,
   description,
   locale = 'ru',
-  canonical = locale === 'ru' ? 'https://rusinternet.com/' : 'https://rusinternet.com/en/',
-  scriptHashes = []
+  canonical = locale === 'ru' ? `${site}/` : `${site}/en/`,
+  scriptHashes = [],
+  alternates = canonical === `${site}/` || canonical === `${site}/en/` ? { ru: '/', en: '/en/' } : undefined,
+  noindex = false
 } = Astro.props;
 const homeHref = locale === 'ru' ? '/' : '/en/';
 const brand = locale === 'ru' ? 'Доступ в российский интернет' : 'Access to the Russian internet';
-const hasLanguageAlternate = canonical === 'https://rusinternet.com/' || canonical === 'https://rusinternet.com/en/';
+const languageHref = alternates ? (locale === 'ru' ? alternates.en : alternates.ru) : (locale === 'ru' ? '/en/' : '/');
 const contentSecurityPolicy = buildContentSecurityPolicy(scriptHashes);
 ---
 <!doctype html>
@@ -33,10 +39,11 @@ const contentSecurityPolicy = buildContentSecurityPolicy(scriptHashes);
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1b1e26" media="(prefers-color-scheme: dark)" />
-    <link rel="canonical" href={canonical} />
-    {hasLanguageAlternate && <link rel="alternate" hreflang="ru" href="https://rusinternet.com/" />}
-    {hasLanguageAlternate && <link rel="alternate" hreflang="en" href="https://rusinternet.com/en/" />}
-    {hasLanguageAlternate && <link rel="alternate" hreflang="x-default" href="https://rusinternet.com/" />}
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {!noindex && alternates && <link rel="alternate" hreflang="ru" href={`${site}${alternates.ru}`} />}
+    {!noindex && alternates && <link rel="alternate" hreflang="en" href={`${site}${alternates.en}`} />}
+    {!noindex && alternates && <link rel="alternate" hreflang="x-default" href={`${site}${alternates.ru}`} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={brand} />
     <meta property="og:title" content={title} />
@@ -69,7 +76,7 @@ const contentSecurityPolicy = buildContentSecurityPolicy(scriptHashes);
         <a href={`${homeHref}#faq`}>FAQ</a>
       </nav>
       <div class="header-actions">
-        <a class="language" href={locale === 'ru' ? '/en/' : '/'}>{locale === 'ru' ? 'EN' : 'RU'}</a>
+        <a class="language" href={languageHref} hreflang={locale === 'ru' ? 'en' : 'ru'}>{locale === 'ru' ? 'EN' : 'RU'}</a>
         <button class="icon-button" id="theme-toggle" type="button" aria-label={locale === 'ru' ? 'Сменить тему' : 'Change theme'}>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
         </button>
