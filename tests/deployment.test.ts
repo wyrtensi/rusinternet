@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const workflowPath = '.github/workflows/deploy.yml';
 const upstreamPath = '.github/workflows/upstream-certificates.yml';
+const tlsPath = '.github/workflows/tls-certificate.yml';
 
 describe('server deployment workflow', () => {
   it('tests and builds before deploying, from main only', async () => {
@@ -35,7 +36,7 @@ describe('server deployment workflow', () => {
     expect(workflow.indexOf('rsync -rlt')).toBeLessThan(workflow.indexOf('"activate $release"'));
   });
 
-  it.each([workflowPath, upstreamPath])('pins every action referenced in %s to an immutable commit', async (path) => {
+  it.each([workflowPath, upstreamPath, tlsPath])('pins every action referenced in %s to an immutable commit', async (path) => {
     const workflow = await readFile(path, 'utf8');
     const references = [...workflow.matchAll(/^\s*uses:\s*[^@]+@([^\s#]+)/gm)].map((match) => match[1]);
     expect(references.length).toBeGreaterThan(0);
@@ -93,5 +94,25 @@ describe('weekly official certificate check', () => {
     expect(workflow).not.toContain('contents: write');
     expect(workflow).not.toContain('pages: write');
     expect(workflow).toContain('node scripts/check-upstream.mjs');
+  });
+});
+
+describe('weekly TLS certificate check', () => {
+  it('runs on a schedule, can only open issues and never publishes', async () => {
+    const workflow = await readFile(tlsPath, 'utf8');
+    expect(workflow).toContain('schedule:');
+    expect(workflow).toContain('issues: write');
+    expect(workflow).not.toContain('contents: write');
+    expect(workflow).toContain('node scripts/check-tls.mjs');
+    expect(workflow).toContain('if: failure()');
+  });
+
+  it('alerts only after Caddy should already have renewed, with time left to fix it', async () => {
+    const script = await readFile('scripts/check-tls.mjs', 'utf8');
+    const minDays = Number(script.match(/MIN_DAYS = (\d+)/)?.[1]);
+    // Caddy renews about 30 days before expiry; a weekly run must still alert well before the end.
+    expect(minDays).toBeLessThan(30);
+    expect(minDays).toBeGreaterThanOrEqual(14);
+    expect(script).toContain("'rusinternet.com', 'www.rusinternet.com'");
   });
 });
