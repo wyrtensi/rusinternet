@@ -1,0 +1,23 @@
+version: "2.4"
+
+# Shared reverse proxy and TLS for all projects on this host.
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: edge-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/etc/caddy/sites:ro
+      - ./data:/data
+      - ./config:/config
+      - /opt/rusinternet/site:/srv/rusinternet:ro
+    mem_limit: 96m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"

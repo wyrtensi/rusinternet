@@ -1,0 +1,40 @@
+www.rusinternet.com {
+	redir https://rusinternet.com{uri} permanent
+}
+
+rusinternet.com {
+	# /opt/rusinternet/site/current is a symlink the updater swaps atomically.
+	root * /srv/rusinternet/current
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# The page CSP is a <meta> tag; frame-ancestors only works as a header.
+		Content-Security-Policy "frame-ancestors 'none'"
+		-Server
+	}
+
+	# iOS offers to install a profile only with this type.
+	@mobileconfig path *.mobileconfig
+	header @mobileconfig Content-Type "application/x-apple-aspen-config"
+
+	@scripts path *.sh *.cmd
+	header @scripts Content-Type "text/plain; charset=utf-8"
+
+	file_server
+
+	handle_errors {
+		@missing expression {err.status_code} == 404
+		handle @missing {
+			rewrite * /404.html
+			file_server
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

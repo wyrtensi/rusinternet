@@ -1,32 +1,38 @@
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
 const workflowPath = '.github/workflows/deploy.yml';
 const upstreamPath = '.github/workflows/upstream-certificates.yml';
 
-describe('GitHub Pages deployment workflow', () => {
+describe('server deployment workflow', () => {
   it('tests and builds before deploying, from main only', async () => {
     const workflow = await readFile(workflowPath, 'utf8');
     expect(workflow).toContain('branches: [main]');
     expect(workflow).toContain('npm test');
     expect(workflow).toContain('npm run build');
     expect(workflow).toContain('needs: build');
-    expect(workflow).toContain('actions/deploy-pages@');
     // build (tests) must run before the artifact is uploaded
-    expect(workflow.indexOf('npm run build')).toBeLessThan(workflow.indexOf('upload-pages-artifact'));
+    expect(workflow.indexOf('npm run build')).toBeLessThan(workflow.indexOf('actions/upload-artifact@'));
   });
 
-  it('uses least-privilege permissions for Pages with OIDC', async () => {
+  it('only reads the repository and needs no Pages or OIDC rights', async () => {
     const workflow = await readFile(workflowPath, 'utf8');
     expect(workflow).toContain('contents: read');
-    expect(workflow).toContain('pages: write');
-    expect(workflow).toContain('id-token: write');
     expect(workflow).not.toContain('contents: write');
+    expect(workflow).not.toContain('pages: write');
+    expect(workflow).not.toContain('id-token: write');
   });
 
-  it('publishes the built site to the custom domain', async () => {
-    const cname = (await readFile('public/CNAME', 'utf8')).trim();
-    expect(cname).toBe('rusinternet.com');
+  it('deploys through the production environment to a pinned host key', async () => {
+    const workflow = await readFile(workflowPath, 'utf8');
+    expect(workflow).toMatch(/environment:\s*\n\s*name: production\s*\n\s*url: https:\/\/rusinternet\.com\//);
+    expect(workflow).toContain('secrets.RUSINTERNET_DEPLOY_KEY');
+    expect(workflow).toMatch(/DEPLOY_HOST_KEY: 192\.144\.58\.198 ssh-ed25519 AAAA\S+/);
+    expect(workflow).toContain('StrictHostKeyChecking=yes');
+    // upload first, switch "current" only after the whole release arrived
+    expect(workflow.indexOf('rsync -rlt')).toBeLessThan(workflow.indexOf('"activate $release"'));
   });
 
   it.each([workflowPath, upstreamPath])('pins every action referenced in %s to an immutable commit', async (path) => {
@@ -47,6 +53,35 @@ describe('GitHub Pages deployment workflow', () => {
     const key = script.match(/INDEXNOW_KEY = '([a-f0-9]{32})'/)?.[1];
     expect(key).toBeDefined();
     expect((await readFile(`public/${key}.txt`, 'utf8')).trim()).toBe(key);
+  });
+});
+
+describe('server forced command for the deploy key', () => {
+  const sh = process.platform === 'win32' ? 'C:/Program Files/Git/bin/sh.exe' : '/bin/sh';
+  const run = (command: string) => {
+    try {
+      execFileSync(sh, ['deploy/server/rusinternet-deploy.sh'], {
+        env: { ...process.env, SSH_ORIGINAL_COMMAND: command },
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      return { status: 0, stderr: '' };
+    } catch (error) {
+      const failure = error as { status?: number; stderr?: string };
+      return { status: failure.status ?? 1, stderr: failure.stderr ?? '' };
+    }
+  };
+
+  it.skipIf(!existsSync(sh)).each(['id', 'sh -c id', 'rsync --sender', ''])('refuses %j', (command) => {
+    const result = run(command);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('command not allowed');
+  });
+
+  it.skipIf(!existsSync(sh)).each(['activate ../../etc', 'activate a/b', 'activate ', 'activate A1'])('rejects the release name in %j', (command) => {
+    const result = run(command);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('invalid release name');
   });
 });
 
