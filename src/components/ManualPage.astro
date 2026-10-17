@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Locale } from '../lib/platform';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const ru = locale === 'ru';
+const paths = { ru: '/manual/', en: '/en/manual/' };
+const home = ru ? '/' : '/en/';
+const guides = ru ? '/install/' : '/en/install/';
+
+// Fingerprints as each system displays them: Windows shows the SHA-1
+// thumbprint, Keychain Access the SHA-256 of the certificate, sha256sum
+// hashes the downloaded file (the RSA root is published as PEM).
+const windowsThumbprint = '8ff915ccab7bc16f8c5c8099d53e0e115b3aec2f';
+const macFingerprint = 'D2 6D 2D 02 31 B7 C3 9F 92 CC 73 85 12 BA 54 10 35 19 E4 40 5D 68 B5 BD 70 3E 97 88 CA 8E CF 31';
+const fileSha256 = '936a43fea6e8e525bcc0f81acd9c3d21b4fc4b9b68acea7906d698005afc6504';
+
+const files = ru
+  ? [
+      ['Russian Trusted Root CA — корневой, обязателен', 'russian_trusted_root_ca.cer', true],
+      ['Russian Trusted Sub CA 2022 — промежуточный, по желанию', 'russian_trusted_sub_ca.cer', false],
+      ['Russian Trusted Sub CA 2024 — промежуточный, по желанию', 'russian_trusted_sub_ca_2024.cer', false]
+    ]
+  : [
+      ['Russian Trusted Root CA — root, required', 'russian_trusted_root_ca.cer', true],
+      ['Russian Trusted Sub CA 2022 — intermediate, optional', 'russian_trusted_sub_ca.cer', false],
+      ['Russian Trusted Sub CA 2024 — intermediate, optional', 'russian_trusted_sub_ca_2024.cer', false]
+    ];
+const title = ru ? 'Сертификаты Минцифры вручную, без установщика' : 'Install Russian certificates manually';
+const description = ru
+  ? 'Как добавить сертификат Минцифры вручную на Windows, macOS и Linux без скриптов: скачать файл, установить и сверить отпечаток. Пошагово.'
+  : 'How to add the Russian Trusted Root CA by hand on Windows, macOS and Linux without scripts: download, install and check the fingerprint.';
+---
+<BaseLayout {title} {description} {locale} canonical={`https://rusinternet.com${paths[locale]}`} alternates={paths}>
+  <article class="manual">
+    <a class="back" href={home}>{ru ? '← На главную' : '← Back to home'}</a>
+    <span class="badge">{ru ? 'РУЧНАЯ УСТАНОВКА' : 'MANUAL INSTALL'}</span>
+    <h1>{ru ? 'Установка вручную, без установщика' : 'Install by hand, without the installer'}</h1>
+    <p class="lead">{ru
+      ? 'Если не хотите запускать скрипт, добавьте сертификат сами — это займёт несколько минут. Браузеру достаточно одного файла: Russian Trusted Root CA. Промежуточные нужны, только если какой-то сайт после установки всё равно не открывается.'
+      : 'If you would rather not run a script, add the certificate yourself — it takes a few minutes. The browser needs one file: Russian Trusted Root CA. The intermediates are only needed if a site still does not open afterwards.'}</p>
+
+    <nav class="jump" aria-label={ru ? 'Выберите систему' : 'Choose your system'}>
+      <a href="#windows">Windows</a><a href="#macos">macOS</a><a href="#linux">Linux</a>
+      <a href={`${guides}android/`}>Android</a><a href={`${guides}ios/`}>{ru ? 'iPhone и iPad' : 'iPhone and iPad'}</a>
+    </nav>
+
+    <section class="files">
+      <h2>{ru ? '1. Скачайте сертификат' : '1. Download the certificate'}</h2>
+      <div class="file-list">
+        {files.map(([label, file, required]) => <a class:list={['file', required && 'required']} href={`/downloads/certificates/${file}`} download><span>{label}</span><span class="dl" aria-hidden="true">↓</span></a>)}
+      </div>
+      <p class="note">{ru
+        ? 'Файлы распакованы из официальной публикации Госуслуг без изменений. После установки сверьте отпечаток — так вы убедитесь, что поставили именно настоящий сертификат.'
+        : 'The files are unpacked unmodified from the official Gosuslugi publication. After installing, check the fingerprint to make sure you added the genuine certificate.'}</p>
+    </section>
+
+    <section id="windows" class="os">
+      <h2>Windows</h2>
+      {ru ? (
+        <ol>
+          <li>Откройте скачанный файл <b>russian_trusted_root_ca.cer</b> двойным щелчком и нажмите <b>«Установить сертификат…»</b>.</li>
+          <li>Выберите <b>«Локальный компьютер»</b> (понадобятся права администратора) или <b>«Текущий пользователь»</b>, если прав нет. Нажмите «Далее».</li>
+          <li>Выберите <b>«Поместить все сертификаты в следующее хранилище»</b> → «Обзор…» → <b>«Доверенные корневые центры сертификации»</b> → «ОК» → «Далее» → «Готово».</li>
+          <li>Если Windows покажет предупреждение о безопасности с именем «Russian Trusted Root CA», нажмите «Да».</li>
+          <li>Полностью закройте браузер и откройте снова.</li>
+        </ol>
+      ) : (
+        <ol>
+          <li>Double-click the downloaded <b>russian_trusted_root_ca.cer</b> and click <b>Install Certificate…</b></li>
+          <li>Choose <b>Local Machine</b> (needs administrator rights) or <b>Current User</b> if you have none. Click Next.</li>
+          <li>Choose <b>Place all certificates in the following store</b> → Browse… → <b>Trusted Root Certification Authorities</b> → OK → Next → Finish.</li>
+          <li>If Windows shows a security warning naming “Russian Trusted Root CA”, click Yes.</li>
+          <li>Close the browser completely and open it again.</li>
+        </ol>
+      )}
+      <p class="check"><strong>{ru ? 'Проверка' : 'Check'}</strong>{ru
+        ? ' В окне сертификата на вкладке «Состав» поле «Отпечаток» должно быть:'
+        : ' In the certificate window, on the Details tab, the Thumbprint must be:'} <code>{windowsThumbprint}</code></p>
+      <p class="aside">{ru
+        ? 'Промежуточные сертификаты ставятся так же, только хранилище — «Промежуточные центры сертификации». Удалить: Win+R → certlm.msc (или certmgr.msc для текущего пользователя) → «Доверенные корневые центры сертификации» → «Сертификаты».'
+        : 'Intermediates install the same way into Intermediate Certification Authorities. To remove: Win+R → certlm.msc (or certmgr.msc for the current user) → Trusted Root Certification Authorities → Certificates.'}</p>
+    </section>
+
+    <section id="macos" class="os">
+      <h2>macOS</h2>
+      {ru ? (
+        <ol>
+          <li>Откройте скачанный <b>russian_trusted_root_ca.cer</b> двойным щелчком — запустится «Связка ключей». Если спросит, куда добавить, выберите <b>«Система»</b> и введите пароль.</li>
+          <li>В «Связке ключей» выберите связку <b>«Система»</b>, вкладку «Сертификаты», найдите <b>Russian Trusted Root CA</b> и откройте его двойным щелчком.</li>
+          <li>Разверните раздел <b>«Доверие»</b> и в пункте «При использовании этого сертификата» выберите <b>«Всегда доверять»</b>.</li>
+          <li>Закройте окно, введите пароль администратора и перезапустите браузер.</li>
+        </ol>
+      ) : (
+        <ol>
+          <li>Double-click the downloaded <b>russian_trusted_root_ca.cer</b> — Keychain Access opens. If it asks where to add it, choose <b>System</b> and enter your password.</li>
+          <li>In Keychain Access select the <b>System</b> keychain, the Certificates tab, find <b>Russian Trusted Root CA</b> and double-click it.</li>
+          <li>Expand <b>Trust</b> and set “When using this certificate” to <b>Always Trust</b>.</li>
+          <li>Close the window, enter the administrator password and restart the browser.</li>
+        </ol>
+      )}
+      <p class="check"><strong>{ru ? 'Проверка' : 'Check'}</strong>{ru
+        ? ' В окне сертификата, в разделе «Отпечатки», значение SHA-256 должно быть:'
+        : ' In the certificate window, under Fingerprints, SHA-256 must be:'} <code>{macFingerprint}</code></p>
+      <p class="aside">{ru
+        ? 'Удалить: «Связка ключей» → «Система» → правый щелчок по сертификату → «Удалить».'
+        : 'To remove: Keychain Access → System → right-click the certificate → Delete.'}</p>
+    </section>
+
+    <section id="linux" class="os">
+      <h2>Linux</h2>
+      <p>{ru ? 'Откройте терминал в папке со скачанным файлом и выполните команды для своего дистрибутива.' : 'Open a terminal in the folder with the downloaded file and run the commands for your distribution.'}</p>
+      <div class="distro"><span>Debian, Ubuntu, Mint</span><pre><code>sudo cp russian_trusted_root_ca.cer /usr/local/share/ca-certificates/russian_trusted_root_ca.crt
+sudo update-ca-certificates</code></pre></div>
+      <div class="distro"><span>Fedora, RHEL, CentOS</span><pre><code>sudo cp russian_trusted_root_ca.cer /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust</code></pre></div>
+      <div class="distro"><span>Arch, Manjaro</span><pre><code>sudo trust anchor --store russian_trusted_root_ca.cer</code></pre></div>
+      <div class="distro"><span>openSUSE</span><pre><code>sudo cp russian_trusted_root_ca.cer /etc/pki/trust/anchors/
+sudo update-ca-certificates</code></pre></div>
+      <p class="check"><strong>{ru ? 'Проверка файла' : 'Check the file'}</strong>{ru ? ' Команда ' : ' The command '}<code>sha256sum russian_trusted_root_ca.cer</code>{ru ? ' должна вывести:' : ' must print:'} <code>{fileSha256}</code></p>
+      <p class="aside">{ru
+        ? 'Chrome и Firefox в Linux используют свои хранилища. Для Chrome и Chromium: '
+        : 'Chrome and Firefox on Linux keep their own stores. For Chrome and Chromium: '}<code>certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n "Russian Trusted Root CA" -i russian_trusted_root_ca.cer</code>{ru
+        ? ' (пакет libnss3-tools или nss-tools). В Firefox: Настройки → Приватность и защита → Сертификаты → «Просмотр сертификатов» → «Центры сертификации» → «Импортировать», затем отметьте «Доверять при идентификации веб-сайтов».'
+        : ' (package libnss3-tools or nss-tools). In Firefox: Settings → Privacy & Security → Certificates → View Certificates → Authorities → Import, then tick “Trust this CA to identify websites”.'}</p>
+    </section>
+
+    <p class="footnote">{ru
+      ? 'Удобнее автоматически? Установщик делает то же самое и сам сверяет контрольные суммы — '
+      : 'Prefer it automatic? The installer does the same and checks the checksums for you — '}<a href={home}>{ru ? 'вернуться к установщику' : 'back to the installer'}</a>.</p>
+  </article>
+</BaseLayout>
+<style>
+  .manual{max-width:760px;margin:44px auto 0;padding:0 22px}
+  .back{color:var(--muted);font-size:13px;text-decoration:none}
+  .badge{display:block;color:var(--blue);font-size:11px;font-weight:800;letter-spacing:.14em;margin-top:40px}
+  h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.04em;line-height:1.08;margin:12px 0 16px}
+  h2{font-size:22px;letter-spacing:-.02em;margin:0 0 14px}
+  .lead{color:var(--muted);line-height:1.6;margin:0 0 20px}
+  .jump{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 30px}
+  .jump a{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--text);text-decoration:none;transition:border-color .15s}
+  .jump a:hover{border-color:var(--blue)}
+  section{margin:0 0 34px;scroll-margin-top:24px}
+  .os{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+  .file-list{display:grid;gap:8px}
+  .file{background:var(--surface);border:1px solid var(--line);padding:13px 16px;border-radius:var(--radius-sm);text-decoration:none;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+  .file span:first-child{flex:1}
+  .file.required{border-color:color-mix(in srgb,var(--blue) 45%,var(--line))}
+  .file .dl{color:var(--blue);font-weight:800}
+  .note,.aside{color:var(--muted);font-size:13px;line-height:1.55;margin:12px 0 0}
+  ol{padding-left:22px;display:grid;gap:10px;line-height:1.6;color:var(--muted);margin:0}
+  ol b{color:var(--text)}
+  li::marker{color:var(--blue);font-weight:800}
+  .check{background:var(--soft);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;line-height:1.6;margin:16px 0 0}
+  code{font-size:12px;word-break:break-all;background:var(--soft);border-radius:4px;padding:1px 4px}
+  .check code{background:var(--surface)}
+  .distro{margin:12px 0 0}
+  .distro span{display:block;font-size:13px;font-weight:650;margin-bottom:6px}
+  pre{background:var(--soft);border-radius:var(--radius-xs);padding:12px;overflow-x:auto;margin:0}
+  pre code{background:none;padding:0;word-break:normal;white-space:pre}
+  .footnote{color:var(--muted);font-size:13px;margin-top:10px}
+  .footnote a{color:var(--blue)}
+  @media(max-width:580px){.manual{margin-top:30px}.badge{margin-top:30px}.os{padding:16px}}
+</style>

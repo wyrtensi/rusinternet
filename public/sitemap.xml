@@ -19,6 +19,24 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://rusinternet.com/"/>
   </url>
   <url>
+    <loc>https://rusinternet.com/manual/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://rusinternet.com/manual/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://rusinternet.com/en/manual/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://rusinternet.com/manual/"/>
+  </url>
+  <url>
+    <loc>https://rusinternet.com/en/manual/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://rusinternet.com/manual/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://rusinternet.com/en/manual/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://rusinternet.com/manual/"/>
+  </url>
+  <url>
     <loc>https://rusinternet.com/install/windows/</loc>
     <lastmod>2026-10-18</lastmod>
     <changefreq>monthly</changefreq>

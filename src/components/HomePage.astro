@@ -126,9 +126,14 @@ const structuredDataHashes = [
         <span class="selected-icon" id="selected-icon" set:html={OS_ICONS.windows}></span>
         <div><strong id="selected-title">Windows</strong><p id="selected-copy">{ru ? 'Установщик всё сделает сам' : 'The installer will do the work'}</p></div>
       </div>
-      <a class="primary-action" id="primary-action" href="/downloads/install-windows.cmd" download>
-        <span id="action-label">{ru ? 'Установить для Windows' : 'Install for Windows'}</span><span class="arrow" aria-hidden="true"><Icon name="mdi:arrow-right" /></span>
-      </a>
+      <div class="action-row">
+        <a class="primary-action" id="primary-action" href="/downloads/install-windows.cmd" download>
+          <span id="action-label">{ru ? 'Установить для Windows' : 'Install for Windows'}</span><span class="arrow" aria-hidden="true"><Icon name="mdi:arrow-right" /></span>
+        </a>
+        <a class="manual-action" id="manual-action" href={ru ? '/manual/#windows' : '/en/manual/#windows'} data-base={ru ? '/manual/' : '/en/manual/'}>
+          <Icon name="mdi:hand-back-right-outline" /><span>{ru ? 'Без установщика' : 'Without installer'}</span>
+        </a>
+      </div>
       <div class="command-panel" id="command-panel" hidden>
         <p>{ru ? 'Откройте Терминал, вставьте команду и нажмите Enter:' : 'Open Terminal, paste the command and press Enter:'}</p>
         <div class="command-row"><code id="install-command"></code><button id="copy-command" type="button">{ru ? 'Копировать' : 'Copy'}</button></div>
@@ -218,6 +223,7 @@ const structuredDataHashes = [
     const card = document.querySelector<HTMLElement>('.installer-card');
     const buttons = document.querySelectorAll<HTMLButtonElement>('[data-platform]');
     const action = document.querySelector<HTMLAnchorElement>('#primary-action');
+    const manual = document.querySelector<HTMLAnchorElement>('#manual-action');
     const label = document.querySelector<HTMLElement>('#action-label');
     const detectedLabel = document.querySelector<HTMLElement>('#detected-label');
     const title = document.querySelector<HTMLElement>('#selected-title');
@@ -248,6 +254,12 @@ const structuredDataHashes = [
         action.href = config.kind === 'command' ? '#' : config.href;
         action.toggleAttribute('download', config.kind === 'download');
         action.dataset.kind = config.kind;
+      }
+      // Android and iPhone guides are manual already; desktops get the no-installer page.
+      if (manual) {
+        const desktop = platform === 'windows' || platform === 'macos' || platform === 'linux';
+        manual.hidden = !desktop;
+        if (desktop) manual.href = `${manual.dataset.base}#${platform}`;
       }
       commandPanel?.setAttribute('hidden','');
       if (config.kind === 'command' && commandCode) commandCode.textContent = config.command;
@@ -293,6 +305,13 @@ const structuredDataHashes = [
   .primary-action .arrow{display:grid;place-items:center}
   .primary-action svg{width:20px;height:20px}
   .primary-action:hover{transform:translateY(-1px);background:var(--blue2);box-shadow:0 9px 22px color-mix(in srgb,var(--blue) 26%,transparent)}
+  .action-row{display:flex;gap:8px}
+  .action-row .primary-action{flex:1;min-width:0}
+  .manual-action{height:54px;padding:0 16px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--surface);color:var(--text);text-decoration:none;font-size:13px;font-weight:650;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:border-color .15s,color .15s}
+  .manual-action svg{width:18px;height:18px;color:var(--blue)}
+  .manual-action:hover{border-color:var(--blue);color:var(--blue)}
+  .manual-action[hidden]{display:none}
+  @media(max-width:520px){.action-row{flex-direction:column}.manual-action{justify-content:center;height:44px}}
   .microcopy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:11px;margin:12px 0 0}
   .microcopy svg{width:14px;height:14px;color:var(--green)}
   .command-panel{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
