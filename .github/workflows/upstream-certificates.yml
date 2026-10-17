@@ -1,0 +1,51 @@
+name: Check official certificates
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Compare Gosuslugi archives with manifest.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+
+      # The bash shell runs with pipefail, so a mismatch still fails the step.
+      - name: Compare archives
+        run: node scripts/check-upstream.mjs 2>&1 | tee upstream-report.txt
+        shell: bash
+
+      # Never publishes anything: a changed certificate set needs a person to
+      # review it, so the job only opens one tracking issue.
+      - name: Open an issue when the official set changed
+        if: failure()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: Official certificate set changed
+        run: |
+          if [ -z "$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[].number')" ]; then
+            {
+              echo 'The weekly check found a difference between the official Gosuslugi archives and `public/downloads/manifest.json`:'
+              echo
+              echo '```'
+              cat upstream-report.txt
+              echo '```'
+              echo
+              echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            } > issue.md
+            gh issue create --title "$TITLE" --body-file issue.md
+          fi

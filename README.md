@@ -25,7 +25,7 @@
 - **Автоопределение ОС** и один понятный сценарий установки для каждой платформы.
 - **Прозрачные установщики** с открытым исходным кодом: `install-windows.cmd`, `install-macos.sh`, `install-linux.sh`, профиль iOS (`.mobileconfig`) и честный гайд для Android.
 - **Проверка SHA-256 до любых системных изменений** — установка прерывается при любом несовпадении.
-- Русская и английская версии, SEO-разметка (JSON-LD `WebSite` + `FAQPage`), sitemap, `robots.txt`, `security.txt`.
+- Русская и английская версии главной и всех инструкций с `hreflang` (русская — `x-default`), SEO-разметка (JSON-LD `WebSite` + `FAQPage`), sitemap с языковыми альтернативами, `robots.txt`, `security.txt`, страница 404.
 - Подробный FAQ, собранный по реальным вопросам пользователей.
 
 ## Модель доверия и безопасность
@@ -75,7 +75,9 @@ npm run build    # astro check + сборка + проверка CSP → dist/
 
 Сайт разворачивается на **GitHub Pages** из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и публикует `dist/`. Собственный домен задаётся файлом [`public/CNAME`](public/CNAME); сертификат HTTPS выпускается автоматически, а режим **Enforce HTTPS** включён. HTTP перенаправляется на HTTPS: установщики и контрольные суммы нельзя безопасно раздавать по незащищённому соединению.
 
-Строгая CSP действует на GitHub Pages через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все семь HTML-страниц и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
+После деплоя workflow проверяет живой сайт (`scripts/smoke-production.mjs`): все страницы из sitemap отвечают 200, неизвестный путь — 404, а установщики и сертификаты совпадают по SHA-256 с `manifest.json`. Затем список страниц уходит в IndexNow (`scripts/indexnow.mjs`): его используют Яндекс и Bing. Раз в неделю workflow [`upstream-certificates.yml`](.github/workflows/upstream-certificates.yml) сверяет набор с архивами Госуслуг и открывает issue при расхождении — сам он ничего не публикует.
+
+Строгая CSP действует на GitHub Pages через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все HTML-страницы (сейчас 13) и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
 
 Файл [`public/.htaccess`](public/.htaccess) хранит MIME-типы и защитные **response headers** для Apache-совместимого зеркала, но GitHub Pages его не исполняет. Поэтому HSTS, Permissions-Policy, header-only-директивы CSP (`frame-ancestors`, reporting) и MIME `application/x-apple-aspen-config` потребуют прокси/CDN или другого хостинга, если они станут обязательными.
 
@@ -83,9 +85,10 @@ npm run build    # astro check + сборка + проверка CSP → dist/
 
 ```
 public/downloads/     сертификаты (.cer), установщики, iOS-профиль, manifest.json
-src/components/        HomePage.astro — главная (RU/EN)
+src/components/        HomePage.astro — главная, GuidePage.astro — инструкция (RU/EN)
 src/layouts/           BaseLayout.astro — общий каркас, темы, футер
-src/pages/             index (RU), en/index (EN), install/[platform] — гайды
+src/pages/             index, install/[platform] (RU); en/index, en/install/[platform] (EN); 404
+scripts/               проверка CSP сборки, smoke-тест продакшена, IndexNow, сверка с Госуслугами
 src/lib/               platform, release (хэши), manifest, certificate-plan, os-icons
 tests/                 автоматические проверки
 docs/                  ROADMAP, заметки по безопасности
