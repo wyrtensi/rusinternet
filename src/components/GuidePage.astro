@@ -59,7 +59,7 @@ const certGroups = ru
         ]
       }
     ];
-const title = ru ? `Российские сертификаты на ${name} — установка` : `Russian trusted certificates on ${name} — install guide`;
+const title = ru ? `Как установить сертификаты Минцифры на ${name}` : `Install Russian trusted certificates on ${name}`;
 const description = ru
   ? `Как установить сертификаты Минцифры на ${name} и убрать ошибку «не защищено» на Госуслугах и в банках. Пошагово, с проверкой файлов.`
   : `How to install the Russian trusted certificates on ${name} and fix the “not secure” error on Russian government and bank sites. Step by step.`;
@@ -144,8 +144,11 @@ const description = ru
     ) : (
       <>
         {ru
-          ? <ol><li>Скачайте прозрачный CMD-установщик.</li><li>Откройте файл и подтвердите запрос контроля учётных записей Windows.</li><li>Дождитесь сообщения Done и перезапустите браузер.</li></ol>
-          : <ol><li>Download the transparent CMD installer.</li><li>Open the file and confirm the Windows User Account Control prompt.</li><li>Wait for the Done message and restart the browser.</li></ol>}
+          ? <ol><li>Скачайте установщик — файл install-windows.cmd.</li><li>Откройте файл и подтвердите запрос контроля учётных записей Windows.</li><li>Дождитесь сообщения Done и перезапустите браузер.</li></ol>
+          : <ol><li>Download the installer — the install-windows.cmd file.</li><li>Open the file and confirm the Windows User Account Control prompt.</li><li>Wait for the Done message and restart the browser.</li></ol>}
+        {ru
+          ? <div class="hint"><strong>Если браузер или Windows предупреждают</strong><p>Браузер может написать, что такие файлы скачивают редко, — выберите «Сохранить» (в Edge: «…» → «Сохранить» → «Всё равно сохранить»). При запуске Windows может показать «Система Windows защитила ваш компьютер» — нажмите «Подробнее» → «Выполнить в любом случае». Так Windows реагирует на любой файл без цифровой подписи, это не признак вируса. Установщик — обычный текстовый файл: перед запуском его можно открыть в Блокноте и посмотреть, что он делает.</p></div>
+          : <div class="hint"><strong>If the browser or Windows warns you</strong><p>The browser may say this file is not commonly downloaded — choose Keep (in Edge: … → Keep → Keep anyway). When you run it, Windows may show “Windows protected your PC” — click More info → Run anyway. Windows does this for any file without a digital signature; it is not a sign of a virus. The installer is a plain text file: you can open it in Notepad before running it to see what it does.</p></div>}
         <a class="primary" href={action.href} download>{ru ? 'Установить для Windows' : 'Install for Windows'}</a>
       </>
     )}
