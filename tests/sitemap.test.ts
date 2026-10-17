@@ -7,6 +7,7 @@ const root = resolve(import.meta.dirname, '..');
 const site = 'https://rusinternet.com';
 const pairs: Array<[string, string]> = [
   ['/', '/en/'],
+  ['/manual/', '/en/manual/'],
   ...PLATFORMS.map((platform): [string, string] => [`/install/${platform}/`, `/en/install/${platform}/`])
 ];
 

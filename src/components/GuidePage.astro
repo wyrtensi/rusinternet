@@ -152,6 +152,12 @@ const description = ru
         <a class="primary" href={action.href} download>{ru ? 'Установить для Windows' : 'Install for Windows'}</a>
       </>
     )}
+    {(platform === 'windows' || platform === 'macos' || platform === 'linux') && (
+      <a class="manual-link" href={`${ru ? '/manual/' : '/en/manual/'}#${platform}`}>
+        <strong>{ru ? 'Не хотите запускать установщик?' : 'Rather not run the installer?'}</strong>
+        <span>{ru ? 'Установите сертификат вручную, через настройки системы →' : 'Install the certificate by hand in the system settings →'}</span>
+      </a>
+    )}
     <p class="footnote">{ru
       ? 'Набор сверен с официальной публикацией Госуслуг 28 августа 2026 года. Корневые сертификаты действуют до 2032 и 2040 годов; набор периодически обновляется в проекте.'
       : 'The set was checked against the official Gosuslugi publication on 28 August 2026. The roots are valid until 2032 and 2040; the set is updated periodically in this project.'}</p>
@@ -203,5 +209,9 @@ const description = ru
   .cert-group-head small{color:var(--muted);font-size:13px;line-height:1.5;display:block;margin-top:3px}
   .cert-group .cert-list{margin-top:10px}
   .footnote{color:var(--muted);font-size:12px;margin-top:26px}
+  .manual-link{display:block;margin-top:22px;border:1px dashed color-mix(in srgb,var(--blue) 45%,var(--line));border-radius:var(--radius);padding:14px 18px;text-decoration:none;transition:border-color .15s,background .15s}
+  .manual-link:hover{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 5%,var(--surface))}
+  .manual-link strong{display:block;font-size:14px;color:var(--text)}
+  .manual-link span{display:block;font-size:13px;color:var(--blue);margin-top:4px}
   @media(max-width:580px){.guide{margin-top:30px}.badge{margin-top:30px}.command{flex-direction:column}.command button{height:43px}}
 </style>
