@@ -13,13 +13,14 @@
 
 ## Публикация
 
-- [x] Деплой на GitHub Pages из `main`: workflow тестирует, собирает и публикует `dist/`.
+- [x] 18 октября 2026: production переехал с GitHub Pages на собственный сервер — общий Caddy на 80/443, Let's Encrypt, атомарные релизы, деплой по SSH с ограниченным ключом.
+- [x] Деплой на GitHub Pages из `main`: workflow тестирует, собирает и публикует `dist/` (до переезда).
 - [x] Собственный домен через `public/CNAME`; HTTPS выпускается автоматически (Let's Encrypt) — сайт с корневыми сертификатами обязан отдаваться только по HTTPS.
 - [x] GitHub Pages Enforce HTTPS включён; сертификат для `rusinternet.com` и `www.rusinternet.com` одобрен, HTTP-редиректы активированы.
 - [x] Строгая CSP работает через ранний `<meta>` на всех страницах: без `unsafe-inline`/`unsafe-eval`, исполняемый JavaScript и CSS вынесены в same-origin-файлы, JSON-LD разрешён только по точным SHA-256-хэшам. Production-сборка автоматически проверяет итоговый HTML.
 - [x] На production проверена доступность `.cer`, `.cmd`, `.sh`, `manifest.json`, RU/EN-страниц и внутренних ссылок.
-- [ ] Проверить установку `.mobileconfig` на реальном iPhone/iPad: GitHub Pages отдаёт файл как `application/octet-stream`, а не `application/x-apple-aspen-config`.
-- [ ] Подключить Яндекс.Вебмастер, Google Search Console и Bing; отправить sitemap.
+- [ ] Проверить установку `.mobileconfig` на реальном iPhone/iPad (сервер уже отдаёт `application/x-apple-aspen-config`).
+- [x] Подключить Яндекс.Вебмастер и Google Search Console, отправить sitemap в Google (18 октября 2026). В Яндексе sitemap отправить после того, как у них заработает инструмент; Bing получает адреса через IndexNow.
 
 ## Готово
 

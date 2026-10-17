@@ -73,13 +73,17 @@ npm run build    # astro check + сборка + проверка CSP → dist/
 
 ## Публикация
 
-Сайт разворачивается на **GitHub Pages** из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и публикует `dist/`. Собственный домен задаётся файлом [`public/CNAME`](public/CNAME); сертификат HTTPS выпускается автоматически, а режим **Enforce HTTPS** включён. HTTP перенаправляется на HTTPS: установщики и контрольные суммы нельзя безопасно раздавать по незащищённому соединению.
+Сайт работает на собственном сервере (VDS, Docker) и обновляется из ветки `main`: workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) прогоняет тесты, собирает статику и заливает `dist/` по SSH в новый каталог релиза, а затем переключает на него симлинк `current` — атомарно, без простоя. Сборка на сервере не идёт: он только раздаёт файлы.
+
+Ключ деплоя лежит в секрете окружения `production` (доступно только ветке `main`) и на сервере ограничен принудительной командой [`deploy/server/rusinternet-deploy.sh`](deploy/server/rusinternet-deploy.sh): разрешены только запись нового релиза через `rrsync -wo` и его активация. Ключ хоста закреплён в workflow.
+
+На сервере 80/443 слушает один общий Caddy ([`deploy/server/edge`](deploy/server/edge)): он выпускает сертификаты Let's Encrypt, перенаправляет HTTP и `www` на `https://rusinternet.com` и маршрутизирует по имени хоста, так что другие проекты сервера добавляются отдельным файлом в `sites/`. Установщики и контрольные суммы раздаются только по HTTPS.
 
 После деплоя workflow проверяет живой сайт (`scripts/smoke-production.mjs`): все страницы из sitemap отвечают 200, неизвестный путь — 404, а установщики и сертификаты совпадают по SHA-256 с `manifest.json`. Затем список страниц уходит в IndexNow (`scripts/indexnow.mjs`): его используют Яндекс и Bing. Раз в неделю workflow [`upstream-certificates.yml`](.github/workflows/upstream-certificates.yml) сверяет набор с архивами Госуслуг и открывает issue при расхождении — сам он ничего не публикует.
 
-Строгая CSP действует на GitHub Pages через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все HTML-страницы (сейчас 13) и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
+Строгая CSP действует через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все HTML-страницы (сейчас 13) и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
 
-Файл [`public/.htaccess`](public/.htaccess) хранит MIME-типы и защитные **response headers** для Apache-совместимого зеркала, но GitHub Pages его не исполняет. Поэтому HSTS, Permissions-Policy, header-only-директивы CSP (`frame-ancestors`, reporting) и MIME `application/x-apple-aspen-config` потребуют прокси/CDN или другого хостинга, если они станут обязательными.
+Caddy добавляет то, чего не умеет meta-CSP: HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` и `Content-Security-Policy: frame-ancestors 'none'`. Профиль iOS отдаётся как `application/x-apple-aspen-config`, установщики — как `text/plain`.
 
 ## Структура проекта
 

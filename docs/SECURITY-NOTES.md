@@ -17,12 +17,12 @@
 
 ## Транспорт и заголовки production
 
-- Для GitHub Pages включён **Enforce HTTPS**; сертификат охватывает `rusinternet.com` и `www.rusinternet.com`.
+- С 18 октября 2026 сайт раздаёт собственный сервер: общий Caddy на 80/443 выпускает сертификаты Let's Encrypt для `rusinternet.com` и `www.rusinternet.com`, HTTP и `www` перенаправляются на `https://rusinternet.com`.
+- Деплой: GitHub Actions заливает сборку по SSH пользователем `rusdeploy` без пароля и без shell — `authorized_keys` с `restrict` и принудительной командой `deploy/server/rusinternet-deploy.sh` (только `rrsync -wo` в каталог релизов и `activate` с проверкой имени и полноты релиза). Ключ хранится в секрете окружения `production`, доступного только ветке `main`; ключ хоста закреплён в workflow (`StrictHostKeyChecking=yes`).
 - HTTP не должен использоваться для раздачи установщиков или контрольных сумм: незашифрованную страницу и сам установщик можно подменить одновременно.
 - Строгая CSP доставляется ранним HTML `<meta>` и действует на текущем production: `default-src 'none'`, исполняемые скрипты и стили разрешены только с того же origin, inline event/style-атрибуты запрещены, JSON-LD разрешён только по точным SHA-256-хэшам. `npm run build` проверяет итоговые страницы на регрессии политики.
-- GitHub Pages не исполняет `public/.htaccess`. Файл остаётся конфигурацией Apache-совместимого зеркала, но его response headers и MIME-настройки не действуют на текущем production.
-- Произвольные HSTS и Permissions-Policy недоступны. Meta CSP также не поддерживает `frame-ancestors`, reporting и другие header-only-возможности; для них потребуется управляемый CDN/proxy или другой hosting.
-- На production `.cer` отдаётся как `application/pkix-cert`, shell-скрипты — как `application/x-sh`, manifest — как JSON. `.mobileconfig` отдаётся как `application/octet-stream`, поэтому его установка должна быть подтверждена на реальном iOS/iPadOS.
+- Response headers задаёт Caddy (`deploy/server/edge/sites/rusinternet.caddy`): HSTS (1 год, без `includeSubDomains`), `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy: frame-ancestors 'none'`.
+- `.cer` отдаётся как `application/pkix-cert`, `.sh`/`.cmd` — как `text/plain`, `.mobileconfig` — как `application/x-apple-aspen-config`. Установку профиля всё равно нужно подтвердить на реальном iOS/iPadOS.
 
 ## Результат внешнего ревью
 

@@ -1,0 +1,8 @@
+# Shared front door for every project on this server: it alone listens on
+# 80/443 and routes by host name. Each project adds one file to sites/.
+{
+	admin off
+	email wyrtensi@gmail.com
+}
+
+import /etc/caddy/sites/*.caddy
