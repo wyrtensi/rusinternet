@@ -14,7 +14,7 @@
                 <key>PayloadDescription</key>
                 <string>Adds a PKCS#1-formatted certificate</string>
                 <key>PayloadDisplayName</key>
-                <string>Russian Trusted Sub CA</string>
+                <string>Russian Trusted Sub CA (2024)</string>
                 <key>PayloadIdentifier</key>
                 <string>com.apple.security.pkcs1.470279BC-A786-4CF7-8586-54AA60F10E42</string>
                 <key>PayloadType</key>
@@ -32,7 +32,7 @@
                 <key>PayloadDescription</key>
                 <string>Adds a PKCS#1-formatted certificate</string>
                 <key>PayloadDisplayName</key>
-                <string>Russian Trusted Sub CA</string>
+                <string>Russian Trusted Sub CA (2022)</string>
                 <key>PayloadIdentifier</key>
                 <string>com.apple.security.pkcs1.EF7A3210-38AC-4B2D-8F68-BF165028A2EE</string>
                 <key>PayloadType</key>

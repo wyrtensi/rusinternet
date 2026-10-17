@@ -2,6 +2,7 @@
 setlocal EnableExtensions
 
 set "DRY_RUN=0"
+set "STORE_CHANGED=0"
 if /i "%~1"=="--dry-run" set "DRY_RUN=1"
 
 if "%DRY_RUN%"=="0" (
@@ -17,7 +18,11 @@ if /i "%~1"=="--elevated" (
   exit /b 1
 )
 echo Administrator rights are required. Confirm the Windows prompt.
-"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath '%SystemRoot%\System32\cmd.exe' -ArgumentList '/d','/c','""%~f0"" --elevated' -Verb RunAs -PassThru -Wait; exit $p.ExitCode"
+rem The script path goes through the environment, not the command text, so
+rem spaces, parentheses and apostrophes in it ("install-windows (1).cmd",
+rem "C:\Users\Ivan Petrov\Downloads") survive both cmd.exe and PowerShell parsing.
+set "RUSINTERNET_SELF=%~f0"
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath '%SystemRoot%\System32\cmd.exe' -ArgumentList ('/d /c \"\"' + $env:RUSINTERNET_SELF + '\" --elevated\"') -Verb RunAs -PassThru -Wait; exit $p.ExitCode"
 set "ELEV_EXIT=%errorlevel%"
 if not "%ELEV_EXIT%"=="0" echo Installation did not complete. See the message in the elevated window.
 exit /b %ELEV_EXIT%
@@ -46,6 +51,7 @@ echo CERTIFICATES_VERIFIED=5
 if "%DRY_RUN%"=="1" goto :success
 
 echo Installing root certificates...
+set "STORE_CHANGED=1"
 "%SystemRoot%\System32\certutil.exe" -addstore -f Root "%WORK_DIR%\russian_trusted_root_ca.cer" >nul || goto :failed
 "%SystemRoot%\System32\certutil.exe" -addstore -f Root "%WORK_DIR%\russian_trusted_root_ca_gost_2025.cer" >nul || goto :failed
 
@@ -72,7 +78,11 @@ exit /b 0
 :failed
 echo.
 echo Installation stopped. A certificate check or a Windows command failed.
-echo Nothing was changed on this computer.
+if "%STORE_CHANGED%"=="1" (
+  echo Some certificates may already be installed. Run the installer again to finish.
+) else (
+  echo Nothing was changed on this computer.
+)
 rmdir /s /q "%WORK_DIR%" >nul 2>&1
 if /i "%~1"=="--elevated" pause
 exit /b 1
