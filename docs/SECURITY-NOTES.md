@@ -17,7 +17,7 @@
 
 ## Транспорт и заголовки production
 
-- С 18 октября 2026 сайт раздаёт собственный сервер: общий Caddy на 80/443 выпускает сертификаты Let's Encrypt для `rusinternet.com` и `www.rusinternet.com`, HTTP и `www` перенаправляются на `https://rusinternet.com`.
+- С 18 октября 2026 сайт раздаёт собственный сервер: общий Caddy на 80/443 выпускает сертификаты Let's Encrypt для `rusinternet.com` и `www.rusinternet.com`, HTTP и `www` перенаправляются на `https://rusinternet.com`. Caddy продлевает сертификаты сам примерно за 30 дней до окончания; еженедельный workflow `tls-certificate.yml` открывает issue, если осталось меньше 21 дня или цепочка не проходит проверку.
 - Деплой: GitHub Actions заливает сборку по SSH пользователем `rusdeploy` без пароля и без shell — `authorized_keys` с `restrict` и принудительной командой `deploy/server/rusinternet-deploy.sh` (только `rrsync -wo` в каталог релизов и `activate` с проверкой имени и полноты релиза). Ключ хранится в секрете окружения `production`, доступного только ветке `main`; ключ хоста закреплён в workflow (`StrictHostKeyChecking=yes`).
 - HTTP не должен использоваться для раздачи установщиков или контрольных сумм: незашифрованную страницу и сам установщик можно подменить одновременно.
 - Строгая CSP доставляется ранним HTML `<meta>` и действует на текущем production: `default-src 'none'`, исполняемые скрипты и стили разрешены только с того же origin, inline event/style-атрибуты запрещены, JSON-LD разрешён только по точным SHA-256-хэшам. `npm run build` проверяет итоговые страницы на регрессии политики.
