@@ -140,6 +140,10 @@ const structuredDataHashes = [
     <div class="platforms" role="group" aria-label={ru ? 'Выбор операционной системы' : 'Operating system selection'}>
       {platforms.map(([id, label]) => <button type="button" data-platform={id} aria-pressed={id === 'windows'}><span class="os-ic" set:html={OS_ICONS[id]}></span><span>{label}</span></button>)}
     </div>
+    <nav class="guide-links" aria-label={ru ? 'Пошаговые инструкции' : 'Step-by-step guides'}>
+      <span>{ru ? 'Пошаговые инструкции:' : 'Step-by-step guides:'}</span>
+      {platforms.map(([id, label]) => <a href={ru ? `/install/${id}/` : `/en/install/${id}/`}>{label}</a>)}
+    </nav>
 
   </section>
 
@@ -299,6 +303,9 @@ const structuredDataHashes = [
   /* Platform picker */
   .choose-label{margin:22px 0 12px;color:var(--muted);font-size:12px}
   .platforms{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+  .guide-links{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin-top:16px;font-size:13px;color:var(--muted)}
+  .guide-links a{color:var(--blue);text-decoration:none}
+  .guide-links a:hover{text-decoration:underline}
   .platforms button{min-width:92px;height:74px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--muted);display:grid;place-items:center;gap:6px;padding:8px;cursor:pointer;font-size:11px;transition:border-color .15s,color .15s,box-shadow .15s}
   .os-ic{display:grid;place-items:center;width:24px;height:24px}
   .platforms button:hover{color:var(--text);border-color:color-mix(in srgb,var(--blue) 35%,var(--line))}

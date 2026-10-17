@@ -63,4 +63,12 @@ describe('getInstallAction', () => {
       href: '/install/android/'
     });
   });
+
+  it('keeps English visitors on the English Android guide', () => {
+    expect(getInstallAction('android', 'en', installerHashes)).toEqual({
+      kind: 'guide',
+      label: 'Start installation',
+      href: '/en/install/android/'
+    });
+  });
 });
