@@ -9,10 +9,10 @@ interface Props { locale: 'ru' | 'en' }
 const { locale } = Astro.props;
 const ru = locale === 'ru';
 const title = ru
-  ? 'Российские сертификаты: исправить ошибку безопасности сайта'
-  : 'Russian trusted certificates: fix the “not secure” site error';
+  ? 'Сертификаты Минцифры — убрать ошибку «не защищено»'
+  : 'Russian trusted certificates: fix “not secure”';
 const description = ru
-  ? '«Подключение не защищено» на Госуслугах, в банке или на маркетплейсе? Установите сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux — бесплатно.'
+  ? '«Подключение не защищено» на Госуслугах или в банке? Установите сертификаты Минцифры на Windows, Android, iPhone, macOS и Linux. Бесплатно.'
   : '“Not secure” on Russian government, bank or marketplace sites? Install the Russian trusted certificates on Windows, Android, iPhone, macOS and Linux — free.';
 const platforms = [
   ['windows', 'Windows'],
