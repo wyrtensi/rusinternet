@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://rusinternet.com"><img src=".github/assets/banner-ru.png" alt="Доступ в российский интернет — безопасная установка российских сертификатов" width="100%"></a>
+</p>
+
+<p align="center"><b>Русский</b> · <a href="README.en.md">English</a></p>
+
 # Доступ в российский интернет
 
 **Открытый помощник по безопасной установке официальных российских доверенных сертификатов (НУЦ Минцифры России).**
@@ -81,7 +87,7 @@ npm run build    # astro check + сборка + проверка CSP → dist/
 
 После деплоя workflow проверяет живой сайт (`scripts/smoke-production.mjs`): все страницы из sitemap отвечают 200, неизвестный путь — 404, а установщики и сертификаты совпадают по SHA-256 с `manifest.json`. Затем список страниц уходит в IndexNow (`scripts/indexnow.mjs`): его используют Яндекс и Bing. Раз в неделю workflow [`upstream-certificates.yml`](.github/workflows/upstream-certificates.yml) сверяет набор с архивами Госуслуг и открывает issue при расхождении — сам он ничего не публикует. Тоже раз в неделю [`tls-certificate.yml`](.github/workflows/tls-certificate.yml) проверяет TLS-сертификаты `rusinternet.com` и `www`: Caddy продлевает их примерно за 30 дней до окончания, и если осталось меньше 21 дня или цепочка не проходит проверку, открывается issue.
 
-Строгая CSP действует через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все HTML-страницы (сейчас 13) и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
+Строгая CSP действует через `<meta http-equiv="Content-Security-Policy">`: исполняемые скрипты и стили вынесены в same-origin-файлы, а JSON-LD разрешён только по точным SHA-256-хэшам. Сборка автоматически проверяет все HTML-страницы (сейчас 15) и падает при появлении inline-кода, `unsafe-inline`, `unsafe-eval` или отсутствующего хэша.
 
 Caddy добавляет то, чего не умеет meta-CSP: HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` и `Content-Security-Policy: frame-ancestors 'none'`. Профиль iOS отдаётся как `application/x-apple-aspen-config`, установщики — как `text/plain`.
 
