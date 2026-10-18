@@ -23,6 +23,17 @@ rusinternet.com {
 	@scripts path *.sh *.cmd
 	header @scripts Content-Type "text/plain; charset=utf-8"
 
+	# The visit counter (deploy/server/stats) is reached through the site
+	# itself, so pages load scripts only from their own origin. Only the
+	# script and the count endpoint pass; the dashboard stays on its own host.
+	@counter path /stats/count /stats/count.js
+	handle @counter {
+		uri strip_prefix /stats
+		reverse_proxy goatcounter:8080 {
+			header_up Host stats.wyrtensi.ru
+		}
+	}
+
 	file_server
 
 	handle_errors {

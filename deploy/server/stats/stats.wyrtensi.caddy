@@ -1,0 +1,10 @@
+# Lives in /opt/edge/sites/. Dashboard of the shared visit counter; the sites
+# themselves send counts through their own /stats/count (see their routes).
+stats.wyrtensi.ru {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	reverse_proxy goatcounter:8080
+}
