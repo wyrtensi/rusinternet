@@ -13,8 +13,8 @@
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
       <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#1d4ed8" flood-opacity=".12"/>
     </filter>
-    <clipPath id="small-globe"><circle cx="32" cy="32" r="24"/></clipPath>
-    <clipPath id="preview-globe"><circle cx="920" cy="315" r="132"/></clipPath>
+    <clipPath id="small-band"><rect x="15" y="11" width="34" height="18" rx="2.5"/></clipPath>
+    <clipPath id="big-band"><rect x="836" y="196" width="168" height="78" rx="10"/></clipPath>
   </defs>
 
   <rect width="1200" height="630" fill="url(#background)"/>
@@ -23,17 +23,15 @@
   <rect x="48" y="44" width="1104" height="542" rx="42" fill="#fff" stroke="#dfe6f1" stroke-width="2" filter="url(#shadow)"/>
 
   <g transform="translate(96 82)">
-    <circle cx="32" cy="32" r="29" fill="#edf3ff"/>
-    <g clip-path="url(#small-globe)">
-      <path fill="#fff" d="M8 8h48v16H8z"/>
-      <path fill="#1d4ed8" d="M8 24h48v16H8z"/>
-      <path fill="#dc2626" d="M8 40h48v16H8z"/>
-      <g fill="none" stroke="#172554" stroke-opacity=".28" stroke-width="1.25">
-        <ellipse cx="32" cy="32" rx="11" ry="24"/>
-        <path d="M32 8v48M9.5 23.5c12.5 4.2 32.5 4.2 45 0M8 32h48M9.5 40.5c12.5-4.2 32.5-4.2 45 0"/>
-      </g>
+    <rect x="9" y="5" width="46" height="54" rx="7" fill="#fff" stroke="#2563eb" stroke-width="4"/>
+    <g clip-path="url(#small-band)">
+      <path fill="#fff" d="M15 11h34v6H15z"/>
+      <path fill="#1d4ed8" d="M15 17h34v6H15z"/>
+      <path fill="#dc2626" d="M15 23h34v6H15z"/>
     </g>
-    <circle cx="32" cy="32" r="24" fill="none" stroke="#315ebd" stroke-width="2"/>
+    <rect x="15" y="11" width="34" height="18" rx="2.5" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+    <path d="M16 37h20" stroke="#93b4f5" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="m30 46 5.5 5.5L47 39" fill="none" stroke="#12a463" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <text x="176" y="121" fill="#101828" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="750">Доступ в российский интернет</text>
 
@@ -48,20 +46,16 @@
     <text x="47" y="34" fill="#1d4ed8" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700">rusinternet.com</text>
   </g>
 
-  <circle cx="920" cy="315" r="157" fill="#edf3ff"/>
-  <g clip-path="url(#preview-globe)">
-    <path fill="#fff" d="M788 183h264v88H788z"/>
-    <path fill="#1d4ed8" d="M788 271h264v88H788z"/>
-    <path fill="#dc2626" d="M788 359h264v88H788z"/>
-    <g fill="none" stroke="#172554" stroke-opacity=".27" stroke-width="6">
-      <ellipse cx="920" cy="315" rx="61" ry="132"/>
-      <path d="M920 183v264M796 268c69 23 179 23 248 0M788 315h264M796 362c69-23 179-23 248 0"/>
-    </g>
+  <circle cx="920" cy="315" r="182" fill="#edf3ff"/>
+  <rect x="808" y="168" width="224" height="294" rx="26" fill="#fff" stroke="#2563eb" stroke-width="12" filter="url(#shadow)"/>
+  <g clip-path="url(#big-band)">
+    <path fill="#fff" d="M836 196h168v26H836z"/>
+    <path fill="#1d4ed8" d="M836 222h168v26H836z"/>
+    <path fill="#dc2626" d="M836 248h168v26H836z"/>
   </g>
-  <circle cx="920" cy="315" r="132" fill="none" stroke="#fff" stroke-opacity=".78" stroke-width="5"/>
-  <circle cx="920" cy="315" r="145" fill="none" stroke="#b9c9e8" stroke-width="4"/>
-  <circle cx="920" cy="315" r="132" fill="none" stroke="#315ebd" stroke-width="9"/>
-  <g transform="translate(1000 410)">
+  <rect x="836" y="196" width="168" height="78" rx="10" fill="none" stroke="#cbd5e1" stroke-width="3"/>
+  <path d="M842 316h156M842 352h112" stroke="#93b4f5" stroke-width="14" stroke-linecap="round"/>
+  <g transform="translate(948 382)">
     <circle cx="40" cy="40" r="40" fill="#fff" stroke="#dfe6f1" stroke-width="2"/>
     <circle cx="40" cy="40" r="29" fill="#e7f8ef"/>
     <path d="m25 40 10 10 21-22" fill="none" stroke="#12a463" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
