@@ -1,6 +1,8 @@
 version: "2.4"
 
 # Shared reverse proxy and TLS for all projects on this host.
+# docker-compose 1.29 on the server cannot recreate a container (KeyError
+# 'ContainerConfig'), so apply changes with: docker-compose rm -sf caddy && docker-compose up -d
 services:
   caddy:
     image: caddy:2-alpine
@@ -15,9 +17,19 @@ services:
       - ./data:/data
       - ./config:/config
       - /opt/rusinternet/site:/srv/rusinternet:ro
+    # Projects that run their own container join the external "proxy"
+    # network; their sites/*.caddy proxies to them by name. Such a project
+    # keeps its container and its sites/*.caddy in its own repository.
+    networks:
+      - default
+      - proxy
     mem_limit: 96m
     logging:
       driver: json-file
       options:
         max-size: "5m"
         max-file: "2"
+
+networks:
+  proxy:
+    external: true
