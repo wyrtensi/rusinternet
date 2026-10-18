@@ -122,6 +122,7 @@ describe('visit counter', () => {
     const route = await readFile('deploy/server/edge/sites/rusinternet.caddy', 'utf8');
     expect(route).toContain('@counter path /stats/count /stats/count.js');
     expect(route).toContain('header_up Host stats.wyrtensi.ru');
+    expect(route).toContain('uri replace /stats/ /admin/');
     expect(route).not.toMatch(/handle_path \/stats\/\*/);
   });
 
