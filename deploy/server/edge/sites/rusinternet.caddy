@@ -23,12 +23,12 @@ rusinternet.com {
 	@scripts path *.sh *.cmd
 	header @scripts Content-Type "text/plain; charset=utf-8"
 
-	# The visit counter (deploy/server/stats) is reached through the site
+	# The visit counter (wyrtensi/stats, deploy/server) is reached through the site
 	# itself, so pages load scripts only from their own origin. Only the
 	# script and the count endpoint pass; the dashboard stays on its own host.
 	@counter path /stats/count /stats/count.js
 	handle @counter {
-		uri strip_prefix /stats
+		uri replace /stats/ /admin/
 		reverse_proxy goatcounter:8080 {
 			header_up Host stats.wyrtensi.ru
 		}
@@ -44,8 +44,20 @@ rusinternet.com {
 		}
 	}
 
+	# Access log without IP addresses (and without forwarded-for or cookie
+	# headers); stats.wyrtensi.ru counts bots from these lines by User-Agent.
 	log {
 		output stdout
-		format console
+		format filter {
+			wrap console
+			fields {
+				request>remote_ip delete
+				request>client_ip delete
+				request>remote_port delete
+				request>headers>X-Forwarded-For delete
+				request>headers>X-Real-Ip delete
+				request>headers>Cookie delete
+			}
+		}
 	}
 }
