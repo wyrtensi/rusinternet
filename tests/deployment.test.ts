@@ -116,3 +116,18 @@ describe('weekly TLS certificate check', () => {
     expect(script).toContain("'rusinternet.com', 'www.rusinternet.com'");
   });
 });
+
+describe('visit counter', () => {
+  it('reaches the counter through the site and exposes only the script and the count endpoint', async () => {
+    const route = await readFile('deploy/server/edge/sites/rusinternet.caddy', 'utf8');
+    expect(route).toContain('@counter path /stats/count /stats/count.js');
+    expect(route).toContain('header_up Host stats.wyrtensi.ru');
+    expect(route).not.toMatch(/handle_path \/stats\/\*/);
+  });
+
+  it('loads the counter only from the site itself', async () => {
+    const layout = await readFile('src/layouts/BaseLayout.astro', 'utf8');
+    expect(layout).toContain('data-goatcounter="/stats/count" src="/stats/count.js"');
+    expect(layout).not.toContain('src="https://stats.');
+  });
+});
